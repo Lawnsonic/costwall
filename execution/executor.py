@@ -46,12 +46,30 @@ import time
 from datetime import datetime, timezone
 from decimal import Decimal
 
-import venue
-import select_symbol
-
 HERE = os.path.dirname(os.path.abspath(__file__))
-STATE_PATH = os.path.join(HERE, "trade_state.json")
-LOG_PATH = os.path.join(HERE, "trades.jsonl")
+ROOT = os.path.dirname(HERE)
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+try:
+    from execution import venue
+except ImportError:
+    import venue
+
+try:
+    from strategy import select_symbol
+except ImportError:
+    import select_symbol
+
+STATE_PATH = os.path.join(ROOT, "evidence", "trade_state.json")
+if not os.path.exists(STATE_PATH) and os.path.exists(os.path.join(HERE, "trade_state.json")):
+    STATE_PATH = os.path.join(HERE, "trade_state.json")
+
+LOG_PATH = os.path.join(ROOT, "evidence", "trades.jsonl")
+if not os.path.exists(LOG_PATH) and os.path.exists(os.path.join(HERE, "trades.jsonl")):
+    LOG_PATH = os.path.join(HERE, "trades.jsonl")
 
 # Mandated shortlist. select_symbol.py ranks the whole board; execution is
 # restricted to this cluster, cheapest at run time.

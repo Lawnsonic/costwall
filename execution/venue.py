@@ -32,7 +32,8 @@ SAPI = "https://api.binance.com"
 TIMEOUT = 15
 RETRIES = 3
 
-CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CACHE_DIR = os.path.join(ROOT, "cache") if os.path.exists(os.path.join(ROOT, "cache")) else os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
 CACHE_TTL = 3600          # exchangeInfo filters change on the order of weeks
 
 # --- Cost model -------------------------------------------------------

@@ -23,11 +23,20 @@ import sys
 import time
 from datetime import datetime, timezone
 
-import scanner
-import venue
+try:
+    from strategy import scanner
+except ImportError:
+    import scanner
 
-LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "refusals.jsonl")
+try:
+    from execution import venue
+except ImportError:
+    import venue
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+LOG_PATH = os.path.join(HERE, "evidence", "refusals.jsonl")
+if not os.path.exists(os.path.dirname(LOG_PATH)):
+    LOG_PATH = os.path.join(HERE, "refusals.jsonl")
 
 _stop = False
 

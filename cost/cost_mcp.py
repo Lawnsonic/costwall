@@ -46,13 +46,24 @@ finish the arithmetic is a REJECT. Fail closed. The one thing this tool must
 never do is stay silent and let the order through.
 """
 
+import os
 import sys
 import traceback
 from datetime import datetime, timedelta, timezone
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
 from mcp.server.mcpserver import MCPServer
 
-import cost_oracle
+try:
+    from cost import cost_oracle
+except ImportError:
+    import cost_oracle
 
 # stdio transport puts the JSON-RPC stream on stdout, so anything else printed
 # there corrupts the protocol. Nothing in this project prints on import, but a

@@ -16,8 +16,20 @@ import requests
 # bps while the scanner printed 44.32. Two different cost-to-beat figures on
 # screen in the same session is a contradiction a careful reader is entitled
 # to catch, and it can only be prevented structurally. The derivations, with
-# the calls and fills that produced them, live in the scanner comments.
-from scanner import ROUND_TRIP, FRICTION
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+try:
+    from strategy.scanner import ROUND_TRIP, FRICTION
+except ImportError:
+    from scanner import ROUND_TRIP, FRICTION
 
 FAPI = "https://fapi.binance.com"
 SAPI = "https://api.binance.com"

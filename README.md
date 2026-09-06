@@ -17,6 +17,29 @@ back to the agent as a number rather than as advice. It ships as an MCP server:
 the agent calls `evaluate_trade` before it places an order and gets a verdict
 with the full arithmetic attached.
 
+```
+                    Binance Agent OS
+                           │
+                           ▼
+                    Trading Agent
+                           │
+                           ▼
+                    Cost MCP Server
+                           │
+                           ▼
+                     Cost Oracle
+                           │
+                 ┌─────────┴─────────┐
+                 │                   │
+              APPROVE             REJECT
+                 │                   │
+                 ▼                   ▼
+             Executor             Logged
+                 │
+                 ▼
+              Binance
+```
+
 ---
 
 ## The failure mode
@@ -179,13 +202,13 @@ can corrupt the transport.
 Most clients accept this block, in their own config file:
 
 ```json
-{"mcpServers": {"costcheck": {"command": "/abs/path/python", "args": ["/abs/path/cost_mcp.py"]}}}
+{"mcpServers": {"costcheck": {"command": "/abs/path/python", "args": ["/abs/path/cost/cost_mcp.py"]}}}
 ```
 
 Both paths must be absolute. The client launches the process itself, and its
 working directory is not this repository. `/abs/path/python` is the interpreter
 of the environment that has `requirements.txt` installed, which on Windows is
-usually `...\.venv\Scripts\python.exe`. `/abs/path/cost_mcp.py` is this file's
+usually `...\.venv\Scripts\python.exe`. `/abs/path/cost/cost_mcp.py` is this file's
 full path.
 
 Clients that read that shape:
@@ -201,7 +224,7 @@ Clients that read that shape:
 Claude Code has a convenience path that writes the entry for you:
 
 ```bash
-claude mcp add costcheck -- /abs/path/python /abs/path/cost_mcp.py
+claude mcp add costcheck -- /abs/path/python /abs/path/cost/cost_mcp.py
 /mcp                                              # confirm it connected
 ```
 
@@ -443,6 +466,65 @@ from a program that merely prints "no" is that it is a program that
 
 ## Architecture
 
+```
+                    Binance Agent OS
+                           │
+                           ▼
+                    Trading Agent
+                           │
+                           ▼
+                    Cost MCP Server
+                           │
+                           ▼
+                     Cost Oracle
+                           │
+                 ┌─────────┴─────────┐
+                 │                   │
+              APPROVE             REJECT
+                 │                   │
+                 ▼                   ▼
+             Executor             Logged
+                 │
+                 ▼
+              Binance
+```
+
+### Repository Structure
+
+```
+binance-agent-os-hackathon/
+│
+├── README.md
+├── CONTEXT.md
+├── CLAUDE.md
+├── requirements.txt
+├── .gitignore
+│
+├── cost/
+│   ├── cost_oracle.py
+│   └── cost_mcp.py
+│
+├── strategy/
+│   ├── scanner.py
+│   ├── select_symbol.py
+│   └── diagnose.py
+│
+├── execution/
+│   ├── executor.py
+│   └── venue.py
+│
+├── evidence/
+│   ├── refusals.jsonl
+│   ├── trades.jsonl
+│   ├── shortlist.json
+│   └── trade_state.json
+│
+└── reporting/
+    ├── build_report.py
+    ├── report_refusals.py
+    └── report.html
+```
+
 **This is not a headless bot, and the split matters.**
 
 All sizing and cost arithmetic lives in deterministic, tested Python. The
@@ -454,18 +536,20 @@ Market data is **public REST only**. No auth, no MCP, no round-tripping
 numeric data through a language model. MCP is used exclusively for execution
 and account state.
 
-| File | Role |
+| Path | Role |
 |---|---|
-| `venue.py` | Shared venue layer. Decimal lot-step arithmetic, `exchangeInfo` filter parsing, disk-cached filters, top-of-book. Importable, no CLI dependency. |
-| `cost_oracle.py` | The cost engine. Prices a proposed hedge against live depth at the traded size and returns a decision object. Importable, no MCP dependency. |
-| `cost_mcp.py` | The `costcheck` MCP server. One tool, stdio, no credentials. Wraps `cost_oracle.py` and fails closed. |
-| `scanner.py` | Signal engine. Scans the USD-M board for funding that clears the full cost stack. |
-| `diagnose.py` | Funnel and distribution visibility. Proves the pipeline is not silently dropping everything. |
-| `select_symbol.py` | Ranks every hedgeable pair by the residual a minimum-size hedge would leave, from live filters and live books. |
-| `executor.py` | Two-legged execution state machine with fill-driven sizing and reconciliation. |
-| `refusal_log.py` | Runs the scanner on a timer, appends every evaluation to `refusals.jsonl`. |
-| `report_refusals.py` | Aggregate over the refusal log. |
-| `build_report.py` | Bakes both logs into a standalone `report.html`. |
+| `execution/venue.py` | Shared venue layer. Decimal lot-step arithmetic, `exchangeInfo` filter parsing, disk-cached filters, top-of-book. Importable, no CLI dependency. |
+| `cost/cost_oracle.py` | The cost engine. Prices a proposed hedge against live depth at the traded size and returns a decision object. Importable, no MCP dependency. |
+| `cost/cost_mcp.py` | The `costcheck` MCP server. One tool, stdio, no credentials. Wraps `cost_oracle.py` and fails closed. |
+| `strategy/scanner.py` | Signal engine. Scans the USD-M board for funding that clears the full cost stack. |
+| `strategy/diagnose.py` | Funnel and distribution visibility. Proves the pipeline is not silently dropping everything. |
+| `strategy/select_symbol.py` | Ranks every hedgeable pair by the residual a minimum-size hedge would leave, from live filters and live books. |
+| `execution/executor.py` | Two-legged execution state machine with fill-driven sizing and reconciliation. |
+| `evidence/` | Audit logs and records: `refusals.jsonl`, `trades.jsonl`, `shortlist.json`, `trade_state.json`. |
+| `reporting/build_report.py` | Bakes both logs into a standalone `report.html`. |
+| `reporting/report_refusals.py` | Aggregate over the refusal log. |
+| `reporting/report.html` | Self-contained visual report with baked-in data. |
+| `refusal_log.py` | Runs the scanner on a timer, appends every evaluation to `evidence/refusals.jsonl`. |
 
 Two failure modes `venue.py` exists to prevent: float lot-step rounding
 (`5.0/832.1` truncated to a `0.00001` step in binary floating point lands on
@@ -713,16 +797,16 @@ rather than more software.
 ```bash
 pip install -r requirements.txt
 
-python diagnose.py                  # funnel + live funding distribution
-python scanner.py                   # scan the board, print the verdict
-python cost_oracle.py STRKUSDT      # price one hedge against live depth
-python cost_oracle.py STRKUSDT --json
-python select_symbol.py             # rank hedgeable pairs by residual
+python strategy/diagnose.py                  # funnel + live funding distribution
+python strategy/scanner.py                   # scan the board, print the verdict
+python cost/cost_oracle.py STRKUSDT          # price one hedge against live depth
+python cost/cost_oracle.py STRKUSDT --json
+python strategy/select_symbol.py             # rank hedgeable pairs by residual
 python refusal_log.py --loop --every 300
-python report_refusals.py           # aggregate
-python build_report.py --open       # standalone report.html
+python reporting/report_refusals.py          # aggregate
+python reporting/build_report.py --open      # standalone report.html
 
-python cost_mcp.py                  # the MCP server itself, stdio, for any client
+python cost/cost_mcp.py                      # the MCP server itself, stdio, for any client
 ```
 
 Execution runs through the Binance MCP server and is driven by the agent

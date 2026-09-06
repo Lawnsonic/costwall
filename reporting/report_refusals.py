@@ -9,8 +9,15 @@ import os
 import sys
 from datetime import datetime
 
-LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "refusals.jsonl")
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+
+LOG_PATH = os.path.join(ROOT, "evidence", "refusals.jsonl")
+if not os.path.exists(LOG_PATH) and os.path.exists(os.path.join(HERE, "refusals.jsonl")):
+    LOG_PATH = os.path.join(HERE, "refusals.jsonl")
 
 
 def load(path=LOG_PATH):

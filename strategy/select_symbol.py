@@ -54,11 +54,23 @@ Public REST only, four calls, filters cached on disk. No auth, no MCP.
 
 import argparse
 import json
+import os
+import sys
 import time
 from datetime import datetime, timezone
 from decimal import Decimal, getcontext
 
-import venue
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+try:
+    from execution import venue
+except ImportError:
+    import venue
 
 getcontext().prec = 28
 
@@ -322,7 +334,8 @@ def main():
                     help="size every candidate at its own joint minimum, not --target")
     ap.add_argument("--symbol", help="print full arithmetic for one symbol")
     ap.add_argument("--refresh", action="store_true", help="bypass the filter cache")
-    ap.add_argument("--json", default="shortlist.json",
+    default_json = os.path.join(ROOT, "evidence", "shortlist.json")
+    ap.add_argument("--json", default=default_json,
                     help="where to write the machine-readable shortlist")
     args = ap.parse_args()
 

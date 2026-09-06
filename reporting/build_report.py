@@ -15,8 +15,16 @@ import webbrowser
 from datetime import datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-REFUSALS = os.path.join(HERE, "refusals.jsonl")
-TRADES = os.path.join(HERE, "trades.jsonl")
+ROOT = os.path.dirname(HERE)
+
+REFUSALS = os.path.join(ROOT, "evidence", "refusals.jsonl")
+if not os.path.exists(REFUSALS) and os.path.exists(os.path.join(HERE, "refusals.jsonl")):
+    REFUSALS = os.path.join(HERE, "refusals.jsonl")
+
+TRADES = os.path.join(ROOT, "evidence", "trades.jsonl")
+if not os.path.exists(TRADES) and os.path.exists(os.path.join(HERE, "trades.jsonl")):
+    TRADES = os.path.join(HERE, "trades.jsonl")
+
 OUT = os.path.join(HERE, "report.html")
 
 

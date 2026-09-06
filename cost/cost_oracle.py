@@ -66,7 +66,17 @@ import time
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, getcontext
 
-import venue
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+try:
+    from execution import venue
+except ImportError:
+    import venue
 
 getcontext().prec = 28
 
@@ -76,8 +86,9 @@ ZERO = Decimal("0")
 FAPI = venue.FAPI
 SAPI = venue.SAPI
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-TRADES_PATH = os.path.join(HERE, "trades.jsonl")
+TRADES_PATH = os.path.join(ROOT, "evidence", "trades.jsonl")
+if not os.path.exists(TRADES_PATH) and os.path.exists(os.path.join(HERE, "trades.jsonl")):
+    TRADES_PATH = os.path.join(HERE, "trades.jsonl")
 
 # How many ladder levels to pull. 100 covers several hundred dollars of depth
 # on the thin symbols this account can afford, and costs weight 5 per venue.
