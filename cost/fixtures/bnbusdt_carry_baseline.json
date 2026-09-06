@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "symbol": "BNBUSDT",
+  "strategy": "funding_carry_delta_neutral",
+  "measured_at": "2026-09-06T12:00:00Z",
+  "expires_at": "2026-09-06T12:00:10Z",
+  "ttl_seconds": 10,
+  "size": {
+    "requested_notional_usdt": 5.0,
+    "futures_qty": "0.01",
+    "spot_qty": "0.01000000",
+    "priced_notional_usdt": 7.4574,
+    "scaled_to_venue_minimum": true,
+    "lot_residual_base": "0.00000000",
+    "lot_residual_usdt": 0.0,
+    "depth_cover_x": 55259.3
+  },
+  "cost_bps": {
+    "fees": 25.0,
+    "entry_basis": 0.0,
+    "exit_spread": 0.13,
+    "lot_residual": 0.0,
+    "total": 25.13
+  },
+  "edge_bps": {
+    "funding_per_settlement": 0.279,
+    "hold_periods": 3,
+    "gross_funding": 0.84,
+    "net": -24.3,
+    "risk_adjusted": -41.25,
+    "min_edge_required": 10.0
+  },
+  "uncertainty_bps": {
+    "depth_impact": 0.0,
+    "calibration_gap": 16.95,
+    "calibration_n": 1,
+    "total_buffer": 16.95
+  },
+  "evidence": {
+    "spot_ask_vwap": "745.33000000",
+    "futures_bid_vwap": "745.740",
+    "spot_bid_vwap": "745.32000000",
+    "futures_ask_vwap": "745.750",
+    "entry_basis_measured_bps": -5.5,
+    "entry_basis_top_of_book_bps": -5.5,
+    "hours_to_next_funding": 12.0,
+    "funding_prints_bps": [
+      "0.50950000",
+      "0.19310000",
+      "0.30780000"
+    ],
+    "funding_sign_persistent": true,
+    "book_depth_levels": 100,
+    "quote_latency_ms": 0,
+    "fee_basis": "spot 7.5 bps and futures 5 bps, verified 2026-09-04 against settled fills; see venue.py"
+  },
+  "decision": "REJECT",
+  "reason": "insufficient_edge",
+  "max_notional_usdt": 0.0,
+  "shortfall_bps": 51.25
+}

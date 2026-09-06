@@ -106,6 +106,14 @@ TTL_SECONDS = 10
 HOLD_PERIODS = 3
 MIN_EDGE_BPS = Decimal("10")
 
+# The ceiling a single-leg conversion has to come in under. A conversion earns
+# nothing, so there is no edge for it to clear and MIN_EDGE_BPS does not apply;
+# what it can still do is be a bad fill. This is the line between "you asked
+# for this trade and it costs what it costs" and "this book is broken". It is a
+# POLICY number like TTL_SECONDS, not a measurement, and it is set well above
+# the 7.5 bps fee floor so that it catches thin books rather than ordinary ones.
+MAX_COST_BPS = Decimal("50")
+
 # Funding must have held its sign this many prints running.
 PERSISTENCE = 3
 
@@ -279,6 +287,92 @@ def price_hedge(symbol, notional_usdt, spot_spec, fut_spec):
     }, None
 
 
+def price_conversion(symbol, notional_usdt, side, spot_spec):
+    """
+    What one spot crossing costs right now, at this size. No second leg.
+
+    This is a different trade from the one price_hedge() prices, and it is
+    priced by a different function rather than by passing the hedge model a
+    flag, because three of that model's four cost terms do not exist here:
+
+      entry basis    there is no second venue to be dislocated from
+      exit spread    a conversion is not a round trip; you are not coming back
+      lot residual   nothing is left unhedged, because nothing was hedged
+
+    Those terms are omitted from the result, not set to zero. A zero would be
+    a claim that the term was measured and found to be nil, which is a
+    different and false statement.
+
+    What remains is the fee and the crossing. The crossing is charged
+    directionally: the distance from mid to the VWAP actually paid, at size,
+    rather than half the spread. Those coincide only on a symmetric book, and
+    the honest number is the one you pay.
+    """
+    t0 = time.time()
+    bids, asks = depth(symbol, "spot")
+    latency_ms = int((time.time() - t0) * 1000)
+
+    if not (bids and asks):
+        return None, "no_two_sided_market"
+
+    ask_top, bid_top = asks[0][0], bids[0][0]
+    ref = (ask_top + bid_top) / 2
+    if ref <= 0:
+        return None, "no_two_sided_market"
+
+    # Size against the side being crossed, then respect the venue's filters.
+    # A request under the minimum is scaled up rather than quietly refused,
+    # and the result says so: on BNBUSDT a 5 USDT buy is really 5.22, because
+    # 5 truncates to 0.006 BNB and the exchange will not take it.
+    cross_top = ask_top if side == "BUY" else bid_top
+    qty = venue.floor_step(Decimal(str(notional_usdt)) / cross_top, spot_spec.step)
+    q_min = venue.ceil_step(
+        max(spot_spec.min_qty, spot_spec.min_notional / cross_top), spot_spec.step)
+    scaled_up = False
+    if qty < q_min:
+        qty, scaled_up = q_min, True
+    if qty <= 0:
+        return None, "below_min_notional"
+
+    # Both sides are walked even though only one is crossed: the untraded side
+    # is what makes the crossing cost measurable against a real mid.
+    ask_vwap, ask_cover = walk(asks, qty)
+    bid_vwap, bid_cover = walk(bids, qty)
+    if ask_vwap is None or bid_vwap is None:
+        return None, "insufficient_depth"
+
+    cross_vwap = ask_vwap if side == "BUY" else bid_vwap
+    slip = (cross_vwap - ref) if side == "BUY" else (ref - cross_vwap)
+    spread_bps = bps(slip, ref)
+
+    top_slip = (ask_top - ref) if side == "BUY" else (ref - bid_top)
+    depth_impact = spread_bps - bps(top_slip, ref)
+
+    # One crossing, one fee. The hedge pays this four times; this pays it once.
+    fees = venue.SPOT_TAKER * BPS
+    notional = qty * cross_vwap
+
+    return {
+        "side": side,
+        "qty": qty,
+        "notional": notional,
+        "scaled_up": scaled_up,
+        "cover": min(ask_cover, bid_cover),
+        "latency_ms": latency_ms,
+        "cost": {
+            "fees_bps": fees,
+            "spread_bps": spread_bps,
+            "total_bps": fees + spread_bps,
+        },
+        "depth_impact_bps": depth_impact,
+        "quotes": {
+            "ask_vwap": ask_vwap, "bid_vwap": bid_vwap,
+            "cross_vwap": cross_vwap,
+            "ask_top": ask_top, "bid_top": bid_top, "mid": ref,
+        },
+    }, None
+
+
 # --- Funding ----------------------------------------------------------
 
 def funding_outlook(symbol, hold_periods=HOLD_PERIODS):
@@ -352,13 +446,19 @@ def _f(d, places=2):
     return float(round(Decimal(d), places))
 
 
-def evaluate(symbol, notional_usdt=5.0, hold_periods=HOLD_PERIODS,
-             min_edge_bps=None, refresh=False):
+def _evaluate_carry(symbol, notional_usdt=5.0, hold_periods=HOLD_PERIODS,
+                    min_edge_bps=None, refresh=False):
     """
     Price a proposed delta-neutral funding carry and return a verdict.
 
     The verdict carries its own arithmetic. A refusal that cannot be checked
     is just an opinion, and an agent has no reason to respect one.
+
+    Reached through evaluate() below, which picks between this and the
+    single-leg pricer. The body is deliberately untouched by that split:
+    verify_conversion.py pins its output byte for byte against a baseline
+    captured before the refactor, because the README quotes these exact
+    figures as evidence.
     """
     symbol = symbol.upper().strip()
     min_edge = Decimal(str(min_edge_bps)) if min_edge_bps is not None else MIN_EDGE_BPS
@@ -507,8 +607,203 @@ def evaluate(symbol, notional_usdt=5.0, hold_periods=HOLD_PERIODS,
     return result
 
 
+def _evaluate_conversion(symbol, notional_usdt=5.0, side=None,
+                         max_cost_bps=None, refresh=False):
+    """
+    Price a single spot crossing and return a verdict in the same shape.
+
+    A conversion has no edge to clear, so the test is not "does it earn more
+    than it costs" but "is this a sane price for a trade you have already
+    decided to make". Those are different questions and this returns the
+    second one honestly rather than borrowing the first one's machinery.
+
+    Two things the carry path carries are deliberately not carried here. The
+    calibration gap is measured against hedge fills and says nothing about a
+    single crossing, so applying it would be borrowing an unrelated error bar.
+    Funding is irrelevant to a trade held for no settlements.
+    """
+    ceiling = Decimal(str(max_cost_bps)) if max_cost_bps is not None else MAX_COST_BPS
+    measured_at = _now()
+
+    def refuse(reason, **extra):
+        out = {
+            "schema_version": SCHEMA_VERSION,
+            "decision": "REJECT",
+            "reason": reason,
+            "symbol": symbol,
+            "strategy": "spot_conversion",
+            "measured_at": _iso(measured_at),
+            "expires_at": _iso(measured_at + timedelta(seconds=TTL_SECONDS)),
+            "ttl_seconds": TTL_SECONDS,
+            "max_notional_usdt": 0.0,
+        }
+        out.update(extra)
+        return out
+
+    if side is None:
+        # The caller asked for a conversion without saying which way. Guessing
+        # would be inventing an intention, so this refuses instead.
+        return refuse("side_required",
+                      detail="A conversion has a direction. Pass side=BUY or "
+                             "side=SELL.")
+    side = str(side).upper().strip()
+    if side not in ("BUY", "SELL"):
+        return refuse("side_invalid", detail=f"side must be BUY or SELL, got {side!r}")
+
+    spot, _ = venue.spot_specs(refresh=refresh)
+    if symbol not in spot:
+        return refuse("no_spot_market",
+                      detail="Not a tradable USDT spot pair.")
+
+    priced, err = price_conversion(symbol, notional_usdt, side, spot[symbol])
+    if priced is None:
+        return refuse(err)
+
+    cost = priced["cost"]
+    buffer_bps = max(ZERO, priced["depth_impact_bps"])
+    total = cost["total_bps"]
+
+    result = {
+        "schema_version": SCHEMA_VERSION,
+        "symbol": symbol,
+        "strategy": "spot_conversion",
+        "side": side,
+        "measured_at": _iso(measured_at),
+        "expires_at": _iso(measured_at + timedelta(seconds=TTL_SECONDS)),
+        "ttl_seconds": TTL_SECONDS,
+        "size": {
+            "requested_notional_usdt": float(notional_usdt),
+            "spot_qty": venue.fmt_qty(priced["qty"], spot[symbol].step),
+            "priced_notional_usdt": _f(priced["notional"], 4),
+            "scaled_to_venue_minimum": priced["scaled_up"],
+            "depth_cover_x": _f(priced["cover"], 1),
+        },
+        # Three of the hedge's four cost terms are absent rather than zero.
+        # See price_conversion: a zero would claim they were measured.
+        "cost_bps": {
+            "fees": _f(cost["fees_bps"]),
+            "spread": _f(cost["spread_bps"]),
+            "total": _f(total),
+            "ceiling": _f(ceiling),
+        },
+        "uncertainty_bps": {
+            "depth_impact": _f(priced["depth_impact_bps"]),
+            "total_buffer": _f(buffer_bps),
+        },
+        "evidence": {
+            "spot_ask_vwap": str(priced["quotes"]["ask_vwap"]),
+            "spot_bid_vwap": str(priced["quotes"]["bid_vwap"]),
+            "crossed_vwap": str(priced["quotes"]["cross_vwap"]),
+            "mid_at_top_of_book": str(priced["quotes"]["mid"]),
+            "book_depth_levels": DEPTH_LIMIT,
+            "quote_latency_ms": priced["latency_ms"],
+            "fee_basis": "spot 7.5 bps, one crossing, verified 2026-09-04 "
+                         "against settled fills; see venue.py",
+            "omitted_terms": "entry_basis, exit_spread and lot_residual do not "
+                             "exist for a single leg and are omitted rather "
+                             "than reported as zero",
+        },
+    }
+
+    approved = total <= ceiling
+    result["decision"] = "APPROVE" if approved else "REJECT"
+    result["reason"] = "cost_within_ceiling" if approved else "cost_exceeds_ceiling"
+    result["max_notional_usdt"] = _f(priced["notional"], 2) if approved else 0.0
+    if approved:
+        result["authorization"] = {
+            "symbol": symbol,
+            "legs": [
+                {"venue": "spot", "side": side, "order": 1,
+                 "quantity": result["size"]["spot_qty"]},
+            ],
+            "max_cost_bps": _f(total + buffer_bps),
+            "expires_at": result["expires_at"],
+        }
+    else:
+        result["shortfall_bps"] = _f(total - ceiling)
+    return result
+
+
+def evaluate(symbol, notional_usdt=5.0, side=None, strategy="auto",
+             hold_periods=HOLD_PERIODS, min_edge_bps=None,
+             max_cost_bps=None, refresh=False):
+    """
+    Price a proposed trade and return a verdict. Picks the model first.
+
+    Two trades reach this function and they cost different things. A hedge is
+    two legs, four crossings and a cross-venue basis. A conversion is one leg
+    and one crossing. Pricing the second with the first model is how a plain
+    5 USDT BNB buy came back REJECT at a 51 bps shortfall on 2026-09-06: the
+    arithmetic was right and the question was wrong.
+
+    The symbol cannot settle it, because BNBUSDT is a valid conversion and a
+    valid hedge. Direction can: a conversion has one side, a hedge has both.
+    So `side` selects, and `strategy` overrides when the caller wants to be
+    explicit. Callers that pass neither, scanner.py included, get the carry
+    model exactly as before.
+    """
+    symbol = symbol.upper().strip()
+    strategy = (strategy or "auto").lower().strip()
+
+    if strategy == "auto":
+        strategy = "conversion" if side is not None else "carry"
+    if strategy not in ("carry", "conversion"):
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "decision": "REJECT",
+            "reason": "strategy_unknown",
+            "detail": f"strategy must be auto, carry or conversion, got "
+                      f"{strategy!r}",
+            "symbol": symbol,
+            "measured_at": _iso(_now()),
+            "expires_at": _iso(_now() + timedelta(seconds=TTL_SECONDS)),
+            "ttl_seconds": TTL_SECONDS,
+            "max_notional_usdt": 0.0,
+        }
+
+    if strategy == "conversion":
+        return _evaluate_conversion(symbol, notional_usdt=notional_usdt,
+                                    side=side, max_cost_bps=max_cost_bps,
+                                    refresh=refresh)
+    return _evaluate_carry(symbol, notional_usdt=notional_usdt,
+                           hold_periods=hold_periods,
+                           min_edge_bps=min_edge_bps, refresh=refresh)
+
+
+def _explain_conversion(d):
+    """A conversion as a human reads it. No funding lines, because none exist."""
+    L = [f"{d['decision']}  {d['symbol']}  {d.get('side', '')}  ({d['reason']})"]
+    if "cost_bps" not in d:
+        L.append(f"  {d.get('detail', 'no priceable market')}")
+        return "\n".join(L)
+    c, u, s = d["cost_bps"], d["uncertainty_bps"], d["size"]
+    L += [
+        f"  measured {d['measured_at']}   expires {d['expires_at']}"
+        f"   ({d['ttl_seconds']}s)",
+        f"  size            {s['spot_qty']} = {s['priced_notional_usdt']} USDT"
+        + ("   scaled up to the venue minimum" if s["scaled_to_venue_minimum"] else ""),
+        "",
+        f"  fee             {c['fees']:>7.2f} bps   one taker crossing",
+        f"  spread          {c['spread']:>7.2f} bps   mid to fill, at size",
+        f"                  {'':>7}       {'-' * 7}",
+        f"  cost            {c['total']:>7.2f} bps   against {c['ceiling']:.2f} "
+        f"allowed",
+        "",
+        f"  buffer          {u['total_buffer']:>7.2f} bps   depth impact, measured",
+        "  no entry basis, exit spread or lot residual: one leg, one crossing.",
+    ]
+    if d["decision"] == "REJECT":
+        L.append(f"\n  over by {d.get('shortfall_bps', 0):.2f} bps. Not trading.")
+    else:
+        L.append(f"\n  authorised to {d['max_notional_usdt']} USDT "
+                 f"until {d['expires_at']}.")
+    return "\n".join(L)
+
+
 def explain(d):
     """The decision as a human reads it. Same numbers, no second source."""
+    if d.get("strategy") == "spot_conversion":
+        return _explain_conversion(d)
     L = [f"{d['decision']}  {d['symbol']}  ({d['reason']})"]
     if "cost_bps" not in d:
         L.append(f"  {d.get('detail', 'no priceable market')}")
@@ -550,12 +845,24 @@ def explain(d):
 if __name__ == "__main__":
     import argparse
 
-    ap = argparse.ArgumentParser(description="Price a proposed hedge against live books.")
+    ap = argparse.ArgumentParser(
+        description="Price a proposed trade against live books. Passing --side "
+                    "prices a single spot crossing; omitting it prices a "
+                    "delta-neutral funding carry.")
     ap.add_argument("symbol")
     ap.add_argument("--notional", type=float, default=5.0)
-    ap.add_argument("--hold", type=int, default=HOLD_PERIODS)
+    ap.add_argument("--side", choices=["BUY", "SELL"], default=None,
+                    help="single-leg conversion in this direction")
+    ap.add_argument("--strategy", choices=["auto", "carry", "conversion"],
+                    default="auto", help="override the model selection")
+    ap.add_argument("--hold", type=int, default=HOLD_PERIODS,
+                    help="carry only: settlements underwritten")
+    ap.add_argument("--max-cost", type=float, default=None,
+                    help="conversion only: cost ceiling in bps")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
 
-    d = evaluate(a.symbol, a.notional, a.hold)
+    d = evaluate(a.symbol, notional_usdt=a.notional, side=a.side,
+                 strategy=a.strategy, hold_periods=a.hold,
+                 max_cost_bps=a.max_cost)
     print(json.dumps(d, indent=2) if a.json else "\n" + explain(d) + "\n")

@@ -173,9 +173,10 @@ any Agent OS agent can reach.
 ## The MCP server
 
 `cost_mcp.py` is a local MCP server. It speaks the Model Context Protocol over
-stdio and exposes exactly one tool, `evaluate_trade`, which prices a proposed
-delta-neutral hedge against live order books and returns a structured verdict.
-Any MCP-capable client can call it. Nothing in it is specific to one agent
+stdio and exposes two tools: `evaluate_trade`, which prices a proposed trade
+against live order books and returns a structured verdict, and
+`record_override`, which writes down that a human overruled one. Any
+MCP-capable client can call them. Nothing in it is specific to one agent
 harness.
 
 ### Contract
@@ -186,7 +187,8 @@ transport     stdio, JSON-RPC on stdin and stdout
 port          none
 credentials   none, no API key and no OAuth
 network       outbound HTTPS to public Binance market data endpoints only
-tools         evaluate_trade
+tools         evaluate_trade, record_override
+writes        evidence/overrides.jsonl, append only
 ```
 
 It reads public order books and does arithmetic. It cannot place an order,
@@ -234,15 +236,53 @@ client spawned it.
 ### The tool
 
 ```
-evaluate_trade(symbol, notional_usdt=5.0, hold_periods=3, min_edge_bps=10.0)
+evaluate_trade(symbol, notional_usdt=5.0, side=None, strategy="auto",
+               hold_periods=3, min_edge_bps=10.0, max_cost_bps=50.0)
 ```
 
 | Parameter | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `symbol` | string | required | A symbol listed on both USDT spot and USD-M futures, for example `STRKUSDT`. Case is normalised. |
-| `notional_usdt` | float | `5.0` | Intended size of one leg. Sized up to the venue minimum if it is below it, and the object says when that happened, because a quote for a size the venue will not accept is not a quote. |
-| `hold_periods` | int | `3` | Number of 8h funding settlements the carry is underwritten over. |
-| `min_edge_bps` | float | `10.0` | Profit required above all costs and buffers before the tool returns APPROVE. |
+| `symbol` | string | required | A USDT spot symbol, for example `STRKUSDT`. A carry additionally requires a USD-M listing. Case is normalised. |
+| `notional_usdt` | float | `5.0` | Intended size. Sized up to the venue minimum if it is below it, and the object says when that happened, because a quote for a size the venue will not accept is not a quote. |
+| `side` | string | `None` | `BUY` or `SELL` prices a single-leg spot conversion. Omitted prices a hedge. **This is what selects the model.** |
+| `strategy` | string | `"auto"` | `auto` infers from `side`. `conversion` or `carry` to be explicit. `conversion` with no side is refused, not guessed. |
+| `hold_periods` | int | `3` | Carry only. Number of 8h funding settlements the carry is underwritten over. |
+| `min_edge_bps` | float | `10.0` | Carry only. Profit required above all costs and buffers before the tool returns APPROVE. |
+| `max_cost_bps` | float | `50.0` | Conversion only. Cost ceiling above which the fill is refused as a bad price. |
+
+#### Two trades, and why the symbol cannot tell them apart
+
+`BNBUSDT` is a valid conversion and a valid hedge. Nothing in the symbol says
+which one you want, so the caller says it, and `side` is the signal: a
+conversion has one direction, a hedge has both.
+
+| | Single-leg conversion | Delta-neutral carry |
+| --- | --- | --- |
+| Selected by | `side="BUY"` or `side="SELL"` | `side` omitted |
+| Legs | 1 | 2 |
+| Taker crossings | 1 | 4 |
+| Cost terms | fee, spread from mid at size | fee, entry basis, exit spread, lot residual |
+| Tested against | `max_cost_bps` | expected funding, `min_edge_bps` |
+| Live BNBUSDT at $5 | **7.57 bps, APPROVE** | **25.13 bps, REJECT, 51.1 bps short** |
+
+Those last two numbers are the same account, the same symbol, the same size,
+the same minute. On 2026-09-06 a plain 5 USDT BNB buy was priced as a carry
+and refused with `max_notional_usdt: 0.0`. The arithmetic was right; the
+question was wrong. It charged four crossings for one and demanded funding
+income from a trade that collects none.
+
+That is worth stating precisely, because it cuts against this project's own
+thesis. A refusal is the product **when the refusal answers the question that
+was asked.** A refusal produced by the wrong model is not a conservative
+result, it is a category error wearing a refusal's clothes, and it fails in
+both directions: it blocks correct orders and it tells you nothing about
+incorrect ones.
+
+The three hedge cost terms are **omitted** from a conversion verdict, not set
+to zero. A zero would be a claim that the term was measured and found to be
+nil. `entry_basis` needs a second venue, `exit_spread` needs a round trip, and
+`lot_residual` needs a leg to be left unhedged. None exist here, so none are
+reported.
 
 It returns a decision object rather than prose, and the shape is the argument.
 Prose is the failure mode: a paragraph explaining that a trade looks expensive
@@ -407,6 +447,63 @@ piece of software and it is not built here. What is built here is the
 arithmetic such a gateway would have to run, which is the part that has to be
 right first. See Limitations.
 
+### The override, and its audit trail
+
+Since a caller can ignore a refusal anyway, the useful question is not how to
+prevent it but whether it leaves a mark. `record_override` is the mark.
+
+```
+record_override(symbol, side=None, notional_usdt=None, verdict=None,
+                user_phrase="override", note=None)
+```
+
+When the human explicitly overrules the verdict (e.g. writes "proceed anyway",
+"override", "force", "buy anyway", or "NCC"), the trade still gets priced and
+the cost still gets shown. What changes is that the number no longer blocks the
+order. Before the order goes out, the caller passes the whole decision object
+back to `record_override`, which appends one line to `evidence/overrides.jsonl`:
+
+```json
+{"event": "override", "decision": "BYPASS", "original_decision": "REJECT",
+ "original_reason": "insufficient_edge", "measured_cost_bps": 25.13,
+ "shortfall_bps": 51.23, "phrase_verified": false, "scope": "one_order",
+ "verdict": { ...the full refusal, verbatim... }}
+```
+
+The design rule is that **the override never destroys the thing it
+overrides.** The refusal survives inside the record that ignored it, so a
+reconciliation later reads "the oracle said 51.23 bps short, the human said
+go, here is the fill" rather than a hole where a refusal used to be.
+
+`record_override` authorises nothing. It cannot approve a trade, cannot place
+an order and returns no permission. If it fails to write, it returns
+`logged: false` and `decision: "LOG_FAILED"`, which the caller is told to
+treat as a stop rather than as consent.
+
+#### Overrides are trusted, not verified
+
+This has to be said at the same volume as everything else on this page,
+because it is the same category of limitation as REJECT being binding.
+
+**`record_override` cannot independently verify that the human authorized the override.**
+The server is a stdio subprocess that receives only what the calling agent passes it. It has
+no channel to the human's message. `user_phrase` is the agent's report that
+the instruction was given, not proof that it was. An agent that wanted to trade
+without being asked could call this tool with `user_phrase: "override"` and nothing
+in the server would know the difference.
+
+So every record is stamped `phrase_verified: false`, and the log states its
+own weakness in each line rather than in a footnote somewhere else. A record
+that implied it proved human consent would be worse than no record, because it
+would be believed.
+
+"One order and then it lapses" and "never self-issued" are therefore policy,
+enforced by the same nothing that enforces the rest of `CLAUDE.md`. Closing
+that gap needs a harness hook that reads the human's literal prompt and drops
+a single-use token the server can check. That is the override equivalent of the
+credential-holding gateway, and like the gateway, it is named here and not
+built.
+
 ## The cost model
 
 Every figure below came from a live call. Nothing is inherited from a fee
@@ -502,7 +599,12 @@ binance-agent-os-hackathon/
 │
 ├── cost/
 │   ├── cost_oracle.py
-│   └── cost_mcp.py
+│   ├── cost_mcp.py
+│   ├── override.py
+│   ├── verify_conversion.py
+│   └── fixtures/
+│       ├── bnbusdt_books.json
+│       └── bnbusdt_carry_baseline.json
 │
 ├── strategy/
 │   ├── scanner.py
@@ -516,6 +618,7 @@ binance-agent-os-hackathon/
 ├── evidence/
 │   ├── refusals.jsonl
 │   ├── trades.jsonl
+│   ├── overrides.jsonl
 │   ├── shortlist.json
 │   └── trade_state.json
 │
@@ -689,6 +792,23 @@ constant.
 Stated plainly, because a simplification a judge discovers themselves is
 worth less than one you declare.
 
+- **Overrides are trusted, not verified.** `record_override` cannot independently
+  confirm that the human gave the instruction. The MCP server receives only what the
+  calling agent passes it and has no channel to the human's message, so `user_phrase`
+  is a report rather than evidence and every record carries `phrase_verified: false`.
+  "One order only" and "never self-issued" are policy in `CLAUDE.md`, enforced
+  by exactly the same nothing that enforces "REJECT is binding". A harness
+  hook reading the literal prompt and issuing a single-use token would close
+  it; it is not built.
+- **The oracle refused a correct trade for eight hours because it only knew
+  one strategy.** Until 2026-09-06 every call was priced as a delta-neutral
+  carry, so a plain 5 USDT spot buy came back REJECT at a 51.1 bps shortfall:
+  four crossings charged for one, and funding income demanded from a trade
+  that collects none. The same buy prices at 7.57 bps under the conversion
+  model added that day. This is the fourth time in this project that confident
+  arithmetic turned out to be answering the wrong question, and it is the one
+  that most looked like the system working correctly, because a refusal from a
+  cost oracle reads as prudence rather than as a bug.
 - **No qualifying signal existed in the observation window.** Not one of
   25,185 pair evaluations cleared 44.32 bps. The scanner printing
   `NO QUALIFYING SIGNAL` is correct behaviour, not a bug. No threshold was
@@ -801,6 +921,8 @@ python strategy/diagnose.py                  # funnel + live funding distributio
 python strategy/scanner.py                   # scan the board, print the verdict
 python cost/cost_oracle.py STRKUSDT          # price one hedge against live depth
 python cost/cost_oracle.py STRKUSDT --json
+python cost/cost_oracle.py BNBUSDT --side BUY    # price a single spot crossing
+python cost/verify_conversion.py             # regression: carry output must not move
 python strategy/select_symbol.py             # rank hedgeable pairs by residual
 python refusal_log.py --loop --every 300
 python reporting/report_refusals.py          # aggregate
