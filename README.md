@@ -2,20 +2,17 @@
 
 **A pre-trade cost oracle for Binance Agent OS.**
 
-A language model can decide what trade it wants to make. It should not be the
-thing that decides whether that trade is economically valid.
+> The first thing I did was give the trading agent a real account and a very small instruction: trade $5. The order succeeded. The fill was $4.30. Later, the same instruction in the other direction filled $5.23. Neither was $5, and nothing in the loop said so.
 
-Those are two different jobs and they want two different machines. Choosing
-what to trade is judgement about a market, and a model is good at it. Deciding
-whether the trade survives its own costs is arithmetic against live order
-books, at the size actually being traded, in basis points, and a model is not
-good at that at all. It reasons in sentences while the loss lives three
-decimal places down.
+An LLM can decide what trade it wants to make. It should not be trusted to decide whether that trade is economically valid. Those are different kinds of reasoning, and Agent OS now hands language models the ability to place real orders without closing that gap.
 
-This repository is the second job, done deterministically in Python and handed
-back to the agent as a number rather than as advice. It ships as an MCP server:
-the agent calls `evaluate_trade` before it places an order and gets a verdict
-with the full arithmetic attached.
+This project is the arithmetic layer that closes it. `evaluate_trade` is a local MCP server exposing one tool. Given a symbol and a size, it walks the live order books at the size actually being traded, prices the complete round trip, and returns a decision object: APPROVE or REJECT, the full cost stack in basis points, the funding against it, and an expiry a few seconds out. REJECT is binding. Decisions expire because the numbers move.
+
+The reference strategy is delta-neutral funding carry, long spot against short USD-M perp. Over a continuous run the scanner priced tens of thousands of possible trades across every hedgeable perpetual on the exchange and refused all of them, because on a flat board the funding never covered the cost of capturing it.
+
+The most useful result came from the project's own failure. A live paired hedge on STRK filled cleanly with zero residual, and cost 55.5 bps against 31.77 predicted. The entire overshoot was cross-venue entry basis, which the project had measured at 6.8 bps under a minute before the order and carried as 19.32 bps in a constant, and then paid 30.5 bps on the fill. Four values for one quantity inside a single minute. That is why the oracle prices at call time instead of caching a constant, and why every decision it issues has a TTL.
+
+The oracle is advisory, not an enforced boundary. An agent holding the raw order tool can read REJECT and place the order anyway. Overrides are logged with the original refusal preserved verbatim inside the record. The enforcement gateway that would make the check unbypassable is described in the repo and not built.
 
 ```
                     Binance Agent OS
@@ -912,28 +909,66 @@ the gap precisely so a caller can see that. What turns it into a distribution,
 with a direction and a per-symbol shape, is elapsed time and settled fills
 rather than more software.
 
-## Running it
+## Replication guide
 
+**Requirements:** Python 3.11+, an MCP-capable client, and a Binance account in a non-restricted jurisdiction. Market data needs no credentials. Only the live execution steps need an account.
+
+### 1. Clone and install
 ```bash
+git clone <repo-url>
+cd binance-agent-os-hackathon
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+source .venv/bin/activate       # macOS / Linux
 pip install -r requirements.txt
-
-python strategy/diagnose.py                  # funnel + live funding distribution
-python strategy/scanner.py                   # scan the board, print the verdict
-python cost/cost_oracle.py STRKUSDT          # price one hedge against live depth
-python cost/cost_oracle.py STRKUSDT --json
-python cost/cost_oracle.py BNBUSDT --side BUY    # price a single spot crossing
-python cost/verify_conversion.py             # regression: carry output must not move
-python strategy/select_symbol.py             # rank hedgeable pairs by residual
-python refusal_log.py --loop --every 300
-python reporting/report_refusals.py          # aggregate
-python reporting/build_report.py --open      # standalone report.html
-
-python cost/cost_mcp.py                      # the MCP server itself, stdio, for any client
 ```
 
-Execution runs through the Binance MCP server and is driven by the agent
-against `executor.py`; it is not a headless loop and will not trade on its
-own.
+### 2. Run the scanner with no credentials
+This works immediately and proves the core claim without touching an account.
+```bash
+python strategy/scanner.py
+python strategy/diagnose.py
+```
+The scanner prints a verdict. `diagnose.py` shows the full funding distribution and where candidates die in the filter chain, so you can confirm a refusal is real rather than a bug.
+
+### 3. Price a specific trade
+```bash
+python cost/cost_oracle.py STRKUSDT              # price carry hedge against live depth
+python cost/cost_oracle.py STRKUSDT --json       # structured JSON decision
+python cost/cost_oracle.py BNBUSDT --side BUY    # price single-leg spot conversion
+python cost/verify_conversion.py                 # regression guard: carry baseline intact
+```
+
+### 4. Register the MCP server
+Stdio transport, no port, no credentials. Any MCP-capable client can call it. Use absolute paths.
+```json
+{"mcpServers": {"costcheck": {
+  "command": "/abs/path/.venv/bin/python",
+  "args": ["/abs/path/cost/cost_mcp.py"]}}}
+```
+For Claude Code specifically:
+```bash
+claude mcp add costcheck -- "/abs/path/python" "/abs/path/cost/cost_mcp.py"
+```
+Start a fresh session. Confirm `evaluate_trade` appears in the tool list, not just that the server shows connected.
+
+### 5. Add the policy
+The check is a policy, not a wall, so the calling client needs the instruction. `CLAUDE.md` in the repo holds three clauses: call `evaluate_trade` before any order, treat REJECT as binding, and re-call if the decision has expired. Codex users put the equivalent in `AGENTS.md`, VS Code in a rules file, Claude Desktop in custom instructions.
+
+### 6. Build the evidence log
+Optional but this is where the argument comes from.
+```bash
+python refusal_log.py --loop --every 300
+python reporting/report_refusals.py              # terminal aggregate summary
+python reporting/build_report.py --open          # bake logs into standalone report.html
+```
+The logger appends one record per scan. The report generator turns those records into a standalone HTML page with the data baked in, no server required.
+
+### 7. Live execution
+Only if you have a funded Agentic sub-account. Fund both the spot and USD-M wallets before starting, since the two legs draw from different balances. Run at 1x. The executor opens the futures leg first, reads the actual filled quantity, and sizes the spot leg from that fill rather than from the planned figure. Execution runs through the Binance MCP server and is driven by the agent against `execution/executor.py`; it is not a headless loop and will not trade on its own.
+
+> [!WARNING]
+> **One caution worth repeating:** the entry basis moves fast enough that a measurement taken a minute earlier was wrong by a factor of four in testing. Do not cache it. That is the whole point.
 
 ## Safety
 
