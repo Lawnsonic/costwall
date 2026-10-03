@@ -16,19 +16,19 @@ sys.path.insert(0, ROOT)
 from hl import ledger
 
 FILLS = [
-    {"coin": "xyz:AMZN", "px": "250.47", "sz": "0.099", "time": 1, "closedPnl": "0.07722",
+    {"coin": "xyz:AMZN", "px": "250.47", "sz": "0.099", "time": 1790000001000, "closedPnl": "0.07722",
      "crossed": False, "fee": "0.025428", "builderFee": "0.024796", "feeToken": "USDC", "tid": 1},
-    {"coin": "BTC", "px": "100000", "sz": "0.001", "time": 2, "closedPnl": "-1.5",
+    {"coin": "BTC", "px": "100000", "sz": "0.001", "time": 1790000002000, "closedPnl": "-1.5",
      "crossed": True, "fee": "0.045", "feeToken": "USDC", "tid": 2},
 ]
-FUNDING = [{"time": 3, "hash": "0x0", "delta": {"coin": "BTC", "usdc": "-0.2"}}]
+FUNDING = [{"time": 1790000003000, "hash": "0x0", "delta": {"coin": "BTC", "usdc": "-0.2"}}]
 
 
 def test_three_headlines():
     ledger.fills = lambda *a: FILLS
     ledger.funding = lambda *a: FUNDING
     ledger.BOOKS_DIR = os.path.join(ROOT, "no-such-dir")
-    s = ledger.summarize("0xabc", days=1, now_ms=10)
+    s = ledger.summarize("0xabc", days=1, now_ms=1790000010000)
     h, c = s["headline"], s["costs"]
     assert h["closed_pnl_only"] == round(0.07722 - 1.5, 2)
     exchange = (0.025428 - 0.024796) + 0.045

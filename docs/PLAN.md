@@ -38,7 +38,7 @@ and crossing cost.
 | A5 | HIP-3 stock markets: off-hours price and price-band refusals | done: `hl/sessions.py`, `hl/band.py`, `hl/xyz_registry.json` |
 | N4 | Venue interface: Binance and Hyperliquid behind one `evaluate` | |
 | B1+B2 | Gateway holds agent key; signed, expiring approvals; reduce-only closes always pass | built, offline-tested: `gateway/` (live testnet run pending keys) |
-| C1 | Net ledger | |
+| C1 | Net ledger | done: `hl/ledger.py` |
 | D1 | Hosted MCP server | server built (`gateway/mcp_server.py --http`), not yet deployed |
 | D4 | Web page: refusal board and ledger | |
 | C4 | Fresh refusal log on Hyperliquid | |
@@ -79,6 +79,18 @@ and crossing cost.
   not in the docs yet.
 - The docs say the band is 1/maxLeverage, but their own table differs for
   XYZ100, COST, UNITREE and SHEIN. Costwall uses the table and reports the gap.
+
+- Fill `fee` INCLUDES `builderFee`: true on all 5,910 builder-coded fills out of
+  81,645 scanned (68 addresses seen in recent trades, 3 days). For the 18
+  addresses using builder codes, builders took 83.1% of all fees ($9,378 of
+  $11,289). Median taker builder fee was 10 bps (the cap) against 0.77 bps to
+  the exchange on HIP-3. Small, unrandomised sample: an illustration, not a
+  market statistic.
+
+## First ledger reading (2026-10-03, one address, 3 days)
+
+closedPnl only -$12.95; minus exchange fees -$26.36; true net -$293.13.
+Builder fees $266.74 were 95% of its fees.
 
 ## First live readings (2026-10-03, $25, 8h hold, base fee tier)
 
