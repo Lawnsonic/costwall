@@ -35,6 +35,7 @@ ROOT = os.path.dirname(HERE)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
+import envfile  # noqa: F401  (loads .env before hl.info reads HL_NETWORK)
 from gateway import authz
 from hl import info, venue
 from hl.oracle import evaluate_perp

@@ -33,6 +33,7 @@ ROOT = os.path.dirname(HERE)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
+import envfile  # noqa: F401  (loads .env before hl.info reads HL_NETWORK)
 from mcp.server.mcpserver import MCPServer
 
 # stdio carries JSON-RPC on stdout; keep import-time output off it.
