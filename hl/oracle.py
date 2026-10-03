@@ -168,6 +168,7 @@ def evaluate_perp(coin, notional_usd, side, hold_hours=None, expected_move_bps=N
             "reason": reason,
             "venue": "hyperliquid",
             "coin": coin,
+            "side": side or None,
             "strategy": "perp_entry",
             "measured_at": _iso(measured_at),
             "expires_at": _iso(measured_at + timedelta(seconds=TTL_SECONDS)),

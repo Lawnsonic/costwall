@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Costwall</title>
+<meta name="description" content="Prices a Hyperliquid trade against the live order book at its real size, and tells you how far price must move before it pays for itself.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect x=%224%22 y=%223%22 width=%2224%22 height=%2226%22 rx=%221%22 fill=%22%23fbfbf8%22 stroke=%22%2318222e%22 stroke-width=%222%22/%3E%3Cpath d=%22M9 11h14M9 16h14M9 21h8%22 stroke=%22%2318222e%22 stroke-width=%222%22/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <span class="brand">Costwall</span>
+  <nav>
+    <a href="https://github.com/Lawnsonic/costwall">Source</a>
+    <a href="#how">How it works</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="pitch">
+      <h1 id="hero-title">Know what a trade costs before your agent makes it.</h1>
+      <p class="lede">Costwall prices a Hyperliquid perp trade against the live order book, at the size you actually trade, and tells you how far the price has to move before the trade has paid for itself. Too expensive, and the order never leaves.</p>
+
+      <form id="price-form" class="form" autocomplete="off">
+        <label class="field wide">
+          <span>Market</span>
+          <input id="coin" list="coins" value="BTC" required spellcheck="false">
+          <datalist id="coins"></datalist>
+        </label>
+        <label class="field">
+          <span>Size, USD</span>
+          <input id="notional" type="number" min="10" step="1" value="25" required>
+        </label>
+        <fieldset class="field side">
+          <legend>Direction</legend>
+          <label><input type="radio" name="side" value="BUY" checked> Long</label>
+          <label><input type="radio" name="side" value="SELL"> Short</label>
+        </fieldset>
+        <label class="field">
+          <span>Hold, hours</span>
+          <input id="hold" type="number" min="0" step="1" value="8">
+        </label>
+        <label class="field">
+          <span>Builder fee, bps</span>
+          <input id="builder" type="number" min="0" max="10" step="0.5" value="0">
+        </label>
+        <label class="check">
+          <input id="accept-internal" type="checkbox">
+          Trade stock markets while the real exchange is closed
+        </label>
+        <button type="submit" id="price-btn">Price this trade</button>
+      </form>
+    </div>
+
+    <div class="receipt-wrap" aria-live="polite">
+      <article id="receipt" class="receipt" data-state="idle">
+        <p class="r-head">COSTWALL<br><span>pre-trade receipt</span></p>
+        <p class="r-idle">Pick a market and press Price this trade. The receipt prints here.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="ledger" aria-labelledby="ledger-title">
+    <h2 id="ledger-title">What did this address really make?</h2>
+    <p class="section-lede">Most trading agents report profit by adding up <code>closedPnl</code>. That number is before fees, and the builder fee charged by a trading front-end can be larger than the exchange's own. Paste any Hyperliquid address to see all three numbers.</p>
+    <form id="ledger-form" class="ledger-form" autocomplete="off">
+      <label class="field grow">
+        <span>Address</span>
+        <input id="address" placeholder="0x…" pattern="^0x[0-9a-fA-F]{40}$" required spellcheck="false">
+      </label>
+      <label class="field">
+        <span>Window</span>
+        <select id="days">
+          <option value="1">1 day</option>
+          <option value="3">3 days</option>
+          <option value="7" selected>7 days</option>
+          <option value="30">30 days</option>
+        </select>
+      </label>
+      <button type="submit" id="ledger-btn">Show the ledger</button>
+    </form>
+    <p class="hint">Any address works. Copy one from a trade on Hyperliquid's explorer.</p>
+    <div id="ledger-out" aria-live="polite"></div>
+  </section>
+
+  <section class="board" aria-labelledby="board-title">
+    <div class="board-head">
+      <h2 id="board-title">Right now on Hyperliquid</h2>
+      <button id="board-btn" class="quiet">Refresh</button>
+    </div>
+    <p class="section-lede">A $25 position held for 8 hours, long and short, on the busiest crypto and stock markets. Priced in your browser a moment ago.</p>
+    <div id="board-out" aria-live="polite"><p class="muted">Loading the order books…</p></div>
+  </section>
+
+  <section id="how" class="how" aria-labelledby="how-title">
+    <h2 id="how-title">How it works</h2>
+    <div class="how-grid">
+      <div>
+        <h3>The break-even move</h3>
+        <p>Crossing the spread to get in, crossing it again to get out, the taker fee both ways, any builder fee both ways, and funding over the hold when it runs against you. Every term is measured against the order book read at the moment you ask, for your exact size.</p>
+      </div>
+      <div>
+        <h3>The gateway</h3>
+        <p>An agent connected to Costwall never holds a trading key. It asks the gateway to trade; the gateway prices the trade, and only an approval signed by the oracle and still unexpired becomes an order, sent as a limit at the approved price. Closing a position is never blocked.</p>
+      </div>
+      <div>
+        <h3>Stock markets after hours</h3>
+        <p>When the underlying exchange is closed, trade.xyz prices its stock perps from its own order book inside a fixed band. What a fill is worth when the real market reopens cannot be measured, so Costwall refuses unless you say otherwise.</p>
+      </div>
+    </div>
+    <p class="fine">This page runs a browser copy of the Python oracle in the repository, at Hyperliquid's public base fee tier. Exit crossing assumes the exit book looks like today's; favourable funding is shown but never counted in your favour. Nothing on this page can place an order.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Built for Colosseum Crypto World's Fair, Hyperliquid track. <a href="https://github.com/Lawnsonic/costwall/blob/main/PRIOR_WORK.md">Prior work disclosed</a>.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
