@@ -1,0 +1,987 @@
+{
+ "source": "https://docs.trade.xyz/perpetuals/specifications-and-schedules/specification-index.md",
+ "fetched_at": "2026-10-03T18:09:19+00:00",
+ "markets": {
+  "xyz:SP500": {
+   "schedule": "futures",
+   "max_leverage": "50x",
+   "discovery_bound": 0.02,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6:00 PM ET to Friday 5:00 PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:XYZ100": {
+   "schedule": "futures",
+   "max_leverage": "30x",
+   "discovery_bound": 0.035,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6:00 PM ET to Friday 5:00 PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:BRENTOIL": {
+   "schedule": "unknown",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 6PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:CL": {
+   "schedule": "futures",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:NATGAS": {
+   "schedule": "futures",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:GOLD": {
+   "schedule": "futures",
+   "max_leverage": "25x",
+   "discovery_bound": 0.04,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:SILVER": {
+   "schedule": "futures",
+   "max_leverage": "25x",
+   "discovery_bound": 0.04,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:PLATINUM": {
+   "schedule": "futures",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:PALLADIUM": {
+   "schedule": "futures",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:COPPER": {
+   "schedule": "futures",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  },
+  "xyz:JPY": {
+   "schedule": "fx",
+   "max_leverage": "50x",
+   "discovery_bound": 0.02,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 5PM ET to Friday 5PM ET",
+   "internal_hours_text": "Trading continues during most US holidays"
+  },
+  "xyz:EUR": {
+   "schedule": "fx",
+   "max_leverage": "50x",
+   "discovery_bound": 0.02,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 5PM ET to Friday 5PM ET",
+   "internal_hours_text": "Trading continues during most US holidays"
+  },
+  "xyz:GBP": {
+   "schedule": "fx",
+   "max_leverage": "50x",
+   "discovery_bound": 0.02,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 5PM ET to Friday 5PM ET",
+   "internal_hours_text": "Trading continues during most US holidays"
+  },
+  "xyz:URNM": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:TSLA": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:NVDA": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:GOOGL": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:INTC": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:MU": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:PLTR": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:ORCL": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:MSTR": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:MSFT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:META": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:AMZN": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:AMD": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:AAPL": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:COIN": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:HOOD": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:NFLX": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:CRCL": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SNDK": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:RIVN": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:USAR": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:TSM": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SKHX": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Refer to Korea External Session",
+   "internal_hours_text": "Refer to Korea Internal Session"
+  },
+  "xyz:SMSN": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Refer to Korea External Session",
+   "internal_hours_text": "Refer to Korea Internal Session"
+  },
+  "xyz:HYUNDAI": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Refer to Korea External Session",
+   "internal_hours_text": "Refer to Korea Internal Session"
+  },
+  "xyz:EWY": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:EWJ": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:EWT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours"
+  },
+  "xyz:BABA": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:CRWV": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:DKNG": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:HIMS": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:COST": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:LLY": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:JP225": {
+   "schedule": "unknown",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Refer to Japan",
+   "internal_hours_text": "Refer to Japan"
+  },
+  "xyz:KR200": {
+   "schedule": "unknown",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Refer to Korea",
+   "internal_hours_text": "Refer to Korea"
+  },
+  "xyz:BIRD": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:DRAM": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:XLE": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:BX": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:LITE": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:GME": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:RKLB": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:MRVL": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:ZM": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:EWZ": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:EBAY": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:CBRS": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:PURRDAT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:ARM": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:BB": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:ASML": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:IBM": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:DELL": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:AVGO": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:QNT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:NOW": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:WDC": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:NBIS": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SPCX": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 5,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:BE": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SMH": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:NOK": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:MINIMAX": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Mon - Fri: 9:30 AM – 12:00 PM HKT; 1:00 PM – 4:00 PM HKT",
+   "internal_hours_text": "Lunch Break: 12:00 PM – 1:00 PM HKT Market Closed: 4:00 PM – 9:30 AM HKT Weekends and exchange holidays"
+  },
+  "xyz:ZHIPU": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Mon - Fri: 9:30 AM – 12:00 PM HKT; 1:00 PM – 4:00 PM HKT",
+   "internal_hours_text": "Lunch Break: 12:00 PM – 1:00 PM HKT Market Closed: 4:00 PM – 9:30 AM HKT Weekends and exchange holidays"
+  },
+  "xyz:QCOM": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:STRC": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:KIOXIA": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Morning Session: 8:20 AM – 4:30 PM JST Afternoon Session: 5:00 PM – 11:59 PM JST",
+   "internal_hours_text": "Afternoon Break: 4:30 PM – 5:00 PM JST Market Closed: 11:59 PM – 8:20 AM JST Weekends and Exchange Holidays"
+  },
+  "xyz:SOFTBANK": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Morning Session: 8:20 AM – 4:30 PM JST Afternoon Session: 5:00 PM – 11:59 PM JST",
+   "internal_hours_text": "Afternoon Break: 4:30 PM – 5:00 PM JST Market Closed: 11:59 PM – 8:20 AM JST Weekends and Exchange Holidays"
+  },
+  "xyz:BOT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:AMAT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SHAZ": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SKHY": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:GIGADEV": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Monday through Friday: 9:30–11:30 a.m. and 1:00–2:57 p.m.",
+   "internal_hours_text": "Monday through Friday: 12:00 a.m.–9:30 a.m. 11:30 a.m.–1:00 p.m. 2:57 p.m.–12:00 a.m. Saturday and Sunday: Closed"
+  },
+  "xyz:CXMT": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Monday through Friday: 9:30–11:30 a.m. and 1:00–2:57 p.m.",
+   "internal_hours_text": "Monday through Friday: 12:00 a.m.–9:30 a.m. 11:30 a.m.–1:00 p.m. 2:57 p.m.–12:00 a.m. Saturday and Sunday: Closed"
+  },
+  "xyz:KORU": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:GEV": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:LYTE": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:NCLD": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SOXL": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:IREN": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:AAOI": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:RDDT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:NET": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:CRWD": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:MAGS": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:UNITREE": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.2,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Monday through Friday: 9:30 – 11:30 a.m. and 1:00 – 2:57 p.m.",
+   "internal_hours_text": "Monday through Friday: 12:00 a.m.–9:30 a.m. 11:30 a.m.–1:00 p.m. 2:57 p.m.–12:00 a.m. Saturday and Sunday: Closed"
+  },
+  "xyz:MRNA": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:XBI": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SHEIN": {
+   "schedule": "unknown",
+   "max_leverage": "10x",
+   "discovery_bound": 0.2,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "Mon - Fri: 9:30 AM – 12:00 PM HKT; 1:00 PM – 4:00 PM HKT",
+   "internal_hours_text": "Lunch Break: 12:00 PM – 1:00 PM HKT Market Closed: 4:00 PM – 9:30 AM HKT Weekends and exchange holidays"
+  },
+  "xyz:BMNR": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:KSTR": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:SNXX": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:CVX": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 1,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:TLT": {
+   "schedule": "us_equity_24_5",
+   "max_leverage": "20x",
+   "discovery_bound": 0.05,
+   "resets": 0,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "24/5, from Sunday 8:00 PM ET to Friday 8:00 PM ET",
+   "internal_hours_text": "Friday 8:00 PM to Sunday 8:00 PM ET, and follows equities holidays & trading hours ."
+  },
+  "xyz:DIESEL": {
+   "schedule": "futures",
+   "max_leverage": "10x",
+   "discovery_bound": 0.1,
+   "resets": 2,
+   "funding_multiplier": "0.5",
+   "external_hours_text": "From Sunday 6PM ET to Friday 5PM ET",
+   "internal_hours_text": "Daily maintenance window applies from 5PM ET to 6PM ET, Monday to Thursday. Trading also follows futures holiday closures ."
+  }
+ }
+}

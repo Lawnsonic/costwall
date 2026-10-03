@@ -39,6 +39,7 @@ MAX_COST_BPS, which catches broken books rather than judging the idea.
 Public REST only. Holds no keys and cannot place an order.
 """
 
+import json
 import os
 import sys
 import time
@@ -50,9 +51,12 @@ ROOT = os.path.dirname(HERE)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from hl import info, venue
+from hl import band, info, sessions, venue
 
 getcontext().prec = 28
+
+with open(os.path.join(HERE, "xyz_registry.json"), encoding="utf-8") as _f:
+    XYZ_REGISTRY = json.load(_f)
 
 BPS = Decimal("10000")
 ZERO = Decimal("0")
@@ -126,8 +130,33 @@ def builder_fee_bps(declared_bps=None, user=None, builder=None):
     return ZERO, "none declared"
 
 
+def price_source(spec, now=None):
+    """Who sets the price on this market right now: the real exchange or the book.
+
+    Main-dex crypto trades 24/7 against itself and has no external session.
+    xyz markets follow the schedule in xyz_registry.json. Other HIP-3 dexes
+    publish no schedule this module can read, so they count as unknown.
+    """
+    if not spec["hip3"]:
+        return None
+    coin = spec["coin"]
+    entry = XYZ_REGISTRY["markets"].get(coin) if spec["dex"] == "xyz" else None
+    schedule = entry["schedule"] if entry else "unknown"
+    state, why, eastern = sessions.session(schedule, now)
+    out = {"schedule": schedule, "session": state, "why": why, "eastern_time": eastern,
+           "registry": XYZ_REGISTRY["source"] if entry else "no published schedule found"}
+    if entry and entry.get("discovery_bound") and spec["max_leverage"]:
+        implied = 1 / Decimal(spec["max_leverage"])
+        if abs(Decimal(str(entry["discovery_bound"])) - implied) > Decimal("0.0001"):
+            out["bound_note"] = (f"published bound {entry['discovery_bound']} differs from "
+                                 f"1/maxLeverage {float(round(implied, 4))}; published value used")
+    if state == sessions.INTERNAL and entry:
+        out["band"] = band.discovery_band(coin, entry, spec["mark_px"], now)
+    return out
+
+
 def evaluate_perp(coin, notional_usd, side, hold_hours=None, expected_move_bps=None,
-                  builder_fee=None, builder=None, user=None):
+                  builder_fee=None, builder=None, user=None, accept_internal_price=False):
     measured_at = _now()
     side = str(side or "").upper().strip()
     hold = Decimal(str(hold_hours if hold_hours is not None else DEFAULT_HOLD_HOURS))
@@ -164,6 +193,15 @@ def evaluate_perp(coin, notional_usd, side, hold_hours=None, expected_move_bps=N
 
     if spec["is_delisted"]:
         return refuse("delisted", detail="Market is delisted; orders would be rejected.")
+    source = price_source(spec)
+    if source and source["session"] == sessions.INTERNAL and not accept_internal_price:
+        return refuse(
+            "internal_price_session",
+            detail=f"{source['why']} ({source['eastern_time']}). The price is set by this "
+                   "market's own order book, not the underlying exchange, so what the "
+                   "position is worth at reopen cannot be measured. Pass "
+                   "accept_internal_price=true to trade anyway.",
+            price_source=source)
     if bfee > MAX_BUILDER_FEE_BPS:
         return refuse("builder_fee_above_cap",
                       detail=f"{bfee} bps exceeds the {MAX_BUILDER_FEE_BPS} bps perp cap.")
@@ -241,6 +279,8 @@ def evaluate_perp(coin, notional_usd, side, hold_hours=None, expected_move_bps=N
             "hold_source": "caller" if hold_hours is not None else "ASSUMED default",
             "exit_crossing_basis": "ASSUMED: exit book resembles the current book",
             "only_isolated_margin": spec["only_isolated"],
+            "price_source": source,
+            "internal_price_accepted": bool(source and source["session"] == sessions.INTERNAL),
             "book_levels": 20,
             "quote_latency_ms": latency_ms,
         },
@@ -294,6 +334,8 @@ if __name__ == "__main__":
     p.add_argument("--hold-hours", type=float)
     p.add_argument("--expected-move-bps", type=float)
     p.add_argument("--builder-fee-bps", type=float)
+    p.add_argument("--accept-internal-price", action="store_true")
     a = p.parse_args()
     print(json.dumps(evaluate_perp(a.coin, a.notional, a.side, a.hold_hours,
-                                   a.expected_move_bps, a.builder_fee_bps), indent=2))
+                                   a.expected_move_bps, a.builder_fee_bps,
+                                   accept_internal_price=a.accept_internal_price), indent=2))

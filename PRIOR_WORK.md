@@ -20,6 +20,13 @@ commit history is preserved in this repository with its original dates.
 The Binance refusal logs and the one Binance paired trade are **prior work**.
 They are not presented as hackathon results.
 
+## Code reused from another project by the same author
+
+`hl/sessions.py` ports the US equity session logic from the author's
+**Stock-Hours Guard** (`keeper/src/session.ts`, written 2026-09-22, inside
+the window), translated from TypeScript to Python and extended with
+trade.xyz's futures and FX schedules and holiday lists.
+
 ## What was built during the hackathon
 
 Everything committed after the tag. The Hyperliquid work starts in `hl/`.

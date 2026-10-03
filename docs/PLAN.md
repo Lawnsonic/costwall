@@ -35,14 +35,14 @@ and crossing cost.
 | A2 | `perp_entry` model: one-direction perp trade, returns break-even move | done: `hl/oracle.py` |
 | A3 | Builder and referral fees in the breakdown | done: declared or read via `maxBuilderFee` |
 | A4 | Hourly funding, HIP-3 funding multiplier | done: multiplier is already inside the API's `funding` |
-| A5 | HIP-3 stock markets: off-hours price and price-band refusals | |
+| A5 | HIP-3 stock markets: off-hours price and price-band refusals | done: `hl/sessions.py`, `hl/band.py`, `hl/xyz_registry.json` |
 | N4 | Venue interface: Binance and Hyperliquid behind one `evaluate` | |
 | B1+B2 | Gateway holds agent key; signed, expiring approvals; reduce-only closes always pass | |
 | C1 | Net ledger | |
 | D1 | Hosted MCP server | |
 | D4 | Web page: refusal board and ledger | |
 | C4 | Fresh refusal log on Hyperliquid | |
-| E2 | Replay tests on recorded books | |
+| E2 | Replay tests on recorded books | started: `tests/test_sessions_band.py` (calendar + docs' WTIOIL example) |
 | E3 | Testnet, then one ~$25 mainnet trade | |
 | D6 | 3 to 5 outside agent builders run the ledger | |
 | E4 | 2-minute pitch, 3-minute demo, go-to-market write-up | |
@@ -73,6 +73,12 @@ and crossing cost.
 - Builder fee cap is 0.1% on perps, 1% on spot; the `f` field is tenths of a bp.
   Approval (`ApproveBuilderFee`) must be signed by the main wallet, not the agent.
 - Minimum order value is $10 (`MinTradeNtl`).
+- trade.xyz schedules (Specification Index, 109 markets): 82 US 24/5
+  (Sun 20:00 to Fri 20:00 ET), 10 futures (Sun 18:00 to Fri 17:00, daily break),
+  3 FX, 14 unknown (Asian sessions, irregular text). HO and OURA trade but are
+  not in the docs yet.
+- The docs say the band is 1/maxLeverage, but their own table differs for
+  XYZ100, COST, UNITREE and SHEIN. Costwall uses the table and reports the gap.
 
 ## First live readings (2026-10-03, $25, 8h hold, base fee tier)
 

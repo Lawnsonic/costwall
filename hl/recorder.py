@@ -21,6 +21,7 @@ WHAT IT WRITES
 data/books/YYYY-MM-DD.jsonl.gz   one line per coin per poll: 20 levels a side
 data/ctx/YYYY-MM-DD.jsonl.gz     one line per dex per minute: funding, premium,
                                  oracle and mark price, OI, volume, flags
+data/oracle/YYYY-MM-DD.jsonl.gz  one line per dex per minute: oracle price only
 
 Appended gzip members, readable with gzip.open() as one stream. The coin set
 is the most-traded names on the main dex plus the most-traded live markets on
@@ -86,11 +87,16 @@ def pick_coins():
 
 def snapshot_ctx():
     ts = _now().isoformat()
-    rows = []
+    rows, oracle = [], []
     for dex in ("",) + HIP3_DEXS:
         universe, ctxs = info.meta_and_ctxs(dex)
         rows.append({"ts": ts, "dex": dex or "main", "universe": universe, "ctxs": ctxs})
+        oracle.append({"ts": ts, "dex": dex or "main",
+                       "px": {a["name"]: c["oraclePx"] for a, c in zip(universe, ctxs)}})
     _append("ctx", rows)
+    # Compact copy of the oracle prices alone, so band.py can replay a weekend
+    # without decompressing every full context snapshot.
+    _append("oracle", oracle)
 
 
 def snapshot_books(coins):
