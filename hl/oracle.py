@@ -23,8 +23,8 @@ exit crossing    the same walk on the other side, for the same size, on the
                  today's. Reported as an assumption, not a measurement.
 fees             the account's taker rate, HIP-3 scaled. See venue.py.
 builder fee      what the agent's framework charges per fill. This is the term
-                 that turned a reported +$410.14 into +$310.23 in a published
-                 Senpi review: it was charged and never subtracted.
+                 that a live Senpi review (senpi-skills PR #800) found was
+                 charged and never read: a +$410.14 headline, far less net.
 funding          hourly rate x hours held. Charged when it runs against the
                  position, never credited when it runs for it, because the rate
                  can flip within the hold. Same rule as the Binance oracle's

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Costwall">
+  <rect width="512" height="512" fill="#d9dfe5"/>
+  <path d="M136 72H376V392 L366 412 L356 392 L346 412 L336 392 L326 412 L316 392 L306 412 L296 392 L286 412 L276 392 L266 412 L256 392 L246 412 L236 392 L226 412 L216 392 L206 412 L196 392 L186 412 L176 392 L166 412 L156 392 L146 412 L136 392 Z" fill="#fbfbf8" stroke="#18222e" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M176 140h160M176 190h160M176 240h104" stroke="#18222e" stroke-width="14" stroke-linecap="round"/>
+  <g transform="rotate(-12 302 308)">
+    <rect x="222" y="276" width="160" height="64" rx="8" fill="none" stroke="#1e6b57" stroke-width="12"/>
+    <path d="M272 309l20 19 42-40" fill="none" stroke="#1e6b57" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

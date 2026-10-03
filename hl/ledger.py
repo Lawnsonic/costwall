@@ -5,8 +5,9 @@ Paste any Hyperliquid address. No key is needed; fills and funding are public.
 
 WHY
 ---
-A published review of a Senpi trading skill found a headline of +$410.14 that
-was +$310.23 net, because the builder fee was never read. That is not a
+A live review of a Senpi trading skill (Senpi-ai/senpi-skills PR #800,
+merged 2026-09-30) found a headline of +$410.14 that it put at +$256.61 net,
+because closedPnl is gross and builderFee was never read. That is not a
 Senpi problem, it is the default: an agent that sums closedPnl reports profit
 before fees, and one that subtracts only the exchange fee still misses the
 builder fee, which on Hyperliquid can be the larger of the two. This shows all
@@ -19,9 +20,11 @@ three numbers side by side so the gap is visible:
 WHERE EACH NUMBER COMES FROM (userFillsByTime, userFunding)
 ----------------------------
 closedPnl     realised price PnL on closing fills, before any fee
-fee           total fee on the fill, INCLUDING the builder fee. Verified on
-              live fills 2026-10-03: fee >= builderFee on every fill that has
-              one, and fee - builderFee matches the exchange rate.
+fee           total fee on the fill, INCLUDING the builder fee. Hyperliquid's
+              info docs: "the total fee, inclusive of builderFee". Confirmed
+              on 5,910 live fills 2026-10-03: fee >= builderFee on every one,
+              and fee - builderFee matches the exchange rate. Adding
+              builderFee on top of fee double-counts it; PR #800 above does.
 builderFee    the builder's share, present only when a builder code was used
 funding       userFunding deltas, signed: negative is paid
 
