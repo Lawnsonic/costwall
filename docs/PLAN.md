@@ -40,12 +40,12 @@ and crossing cost.
 | B1+B2 | Gateway holds agent key; signed, expiring approvals; reduce-only closes always pass | built, offline-tested: `gateway/` (live testnet run pending keys) |
 | C1 | Net ledger | done: `hl/ledger.py` |
 | D1 | Hosted MCP server | server built (`gateway/mcp_server.py --http`), not yet deployed |
-| D4 | Web page: refusal board and ledger | |
-| C4 | Fresh refusal log on Hyperliquid | |
+| D4 | Web page: refusal board and ledger | live: https://lawnsonic.github.io/costwall/ |
+| C4 | Fresh refusal log on Hyperliquid | running: `hl/scan.py` -> `evidence/hl/scan/` every 5 min |
 | E2 | Replay tests on recorded books | started: `tests/test_sessions_band.py` (calendar + docs' WTIOIL example) |
-| E3 | Testnet, then one ~$25 mainnet trade | |
+| E3 | One small mainnet round trip through the gateway | pre-flight passed; user runs `python -m scripts.live_check --trade` |
 | D6 | 3 to 5 outside agent builders run the ledger | |
-| E4 | 2-minute pitch, 3-minute demo, go-to-market write-up | |
+| E4 | 2-minute pitch, 3-minute demo, go-to-market write-up | README written for judges; videos to do |
 
 ## Left out, and why
 
