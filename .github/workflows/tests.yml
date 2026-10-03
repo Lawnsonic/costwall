@@ -1,0 +1,21 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements.txt
+      - name: Session calendar and discovery band (offline)
+        run: python -m tests.test_sessions_band
+      - name: Ledger arithmetic (offline)
+        run: python -m tests.test_ledger
+      - name: Gateway against a fake exchange (prices the live public book, sends nothing)
+        run: python -m tests.test_gateway

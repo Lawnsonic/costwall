@@ -151,9 +151,19 @@ python -m scripts.live_check            # gateway pre-flight, sends nothing
 | Gateway verdicts, orders and fills | `evidence/hl/` |
 | Tests: session calendar, trade.xyz's published discovery-band example, gateway against a fake exchange, ledger arithmetic | `tests/` |
 
-The first live round trip through the gateway (an $11 BTC long, closed
-immediately) is run with `python -m scripts.live_check --trade`; its rows
-appear in `evidence/hl/trades.jsonl`.
+**First live round trip, 2026-10-03.** An $11 BTC long through
+`request_trade`, closed at once through `close_position`, on mainnet with a
+trade-only agent wallet. Reconciled against the exchange's own fill records:
+
+| | Predicted | Realised |
+|---|---|---|
+| Taker fees, both ways | 9.00 bps | 9.00 bps |
+| Spread in and out | 0.12 bps | 0.12 bps |
+| Total for the trade made (no funding hour crossed) | **9.12 bps** | **9.12 bps** ($0.0093 on $10.18) |
+
+One small trade on the deepest book on the venue, so it proves the path works
+end to end with real money, not that the model holds on thin books. Full
+record: [evidence/hl/first-round-trip-2026-10-03.md](evidence/hl/first-round-trip-2026-10-03.md).
 
 ---
 
