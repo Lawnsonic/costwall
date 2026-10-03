@@ -17,6 +17,9 @@ commit history is preserved in this repository with its original dates.
 | Strategy | `strategy/` | Funding-rate scanner over Binance perps |
 | Evidence and reporting | `evidence/`, `reporting/`, `refusal_log.py` | Binance trade and refusal logs, HTML report |
 
+The original README, CONTEXT.md and agent policy (CLAUDE.md) were moved to
+`prior/` on 2026-10-03 and are unchanged.
+
 The Binance refusal logs and the one Binance paired trade are **prior work**.
 They are not presented as hackathon results.
 
