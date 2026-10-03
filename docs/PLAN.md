@@ -37,9 +37,9 @@ and crossing cost.
 | A4 | Hourly funding, HIP-3 funding multiplier | done: multiplier is already inside the API's `funding` |
 | A5 | HIP-3 stock markets: off-hours price and price-band refusals | done: `hl/sessions.py`, `hl/band.py`, `hl/xyz_registry.json` |
 | N4 | Venue interface: Binance and Hyperliquid behind one `evaluate` | |
-| B1+B2 | Gateway holds agent key; signed, expiring approvals; reduce-only closes always pass | |
+| B1+B2 | Gateway holds agent key; signed, expiring approvals; reduce-only closes always pass | built, offline-tested: `gateway/` (live testnet run pending keys) |
 | C1 | Net ledger | |
-| D1 | Hosted MCP server | |
+| D1 | Hosted MCP server | server built (`gateway/mcp_server.py --http`), not yet deployed |
 | D4 | Web page: refusal board and ledger | |
 | C4 | Fresh refusal log on Hyperliquid | |
 | E2 | Replay tests on recorded books | started: `tests/test_sessions_band.py` (calendar + docs' WTIOIL example) |

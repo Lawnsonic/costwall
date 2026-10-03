@@ -6,25 +6,31 @@ live in one place. Hyperliquid meters the info endpoint by weight per IP
 (1200 per minute); l2Book costs 2, metaAndAssetCtxs costs 20.
 """
 
-import json
+import os
 import time
-import urllib.error
-import urllib.request
 
-INFO_URL = "https://api.hyperliquid.xyz/info"
+import requests
+
+# Testnet and mainnet have different books. The oracle must price against the
+# network the gateway trades on, so both read the same switch.
+NETWORK = os.environ.get("HL_NETWORK", "mainnet")
+API_URL = ("https://api.hyperliquid-testnet.xyz" if NETWORK == "testnet"
+           else "https://api.hyperliquid.xyz")
+INFO_URL = API_URL + "/info"
 TIMEOUT = 15
+
+# One kept-alive connection. A fresh TLS handshake per call cost ~0.9 s each
+# from Lagos, which ate most of a 10-second verdict lifetime.
+_session = requests.Session()
 
 
 def q(body, retries=3):
-    data = json.dumps(body).encode()
     for attempt in range(retries):
         try:
-            req = urllib.request.Request(
-                INFO_URL, data=data, headers={"Content-Type": "application/json"}
-            )
-            with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-                return json.load(r)
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+            r = _session.post(INFO_URL, json=body, timeout=TIMEOUT)
+            r.raise_for_status()
+            return r.json()
+        except (requests.RequestException, ValueError):
             if attempt == retries - 1:
                 raise
             time.sleep(2 ** attempt)

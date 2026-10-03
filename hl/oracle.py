@@ -186,6 +186,9 @@ def evaluate_perp(coin, notional_usd, side, hold_hours=None, expected_move_bps=N
         fees = venue.perp_fee_bps(spec, user)
         bfee, bfee_source = builder_fee_bps(builder_fee, user, builder)
         bids, asks, latency_ms = book(coin)
+        # The verdict describes the book at the moment it was read, so its
+        # lifetime starts here, not when the request arrived.
+        measured_at = _now()
     except KeyError as e:
         return refuse("unknown_market", detail=str(e))
     except Exception as e:  # unknown cost is not acceptable cost
