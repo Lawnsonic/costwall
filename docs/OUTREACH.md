@@ -1,25 +1,14 @@
-# Outreach message for agent builders
+# Optional outreach
 
-For traction (one of the seven judging factors). Send it to people who run
-trading agents or bots on Hyperliquid: Senpi skill authors, MCP agent
-builders, copy-trading and vault operators. Personalise the first line. Only
-report replies you actually get.
+Hi [name], I built Costwall for Hyperliquid agent developers. It provides
+an itemised pre-trade cost estimate and a realised ledger separating fees
+and funding. Would you try your address and tell me if it matches your records?
 
----
+https://lawnsonic.github.io/costwall/
 
-Hi [name], I saw [their agent / skill / vault]. Quick one: I built a free
-tool that shows the gap between the PnL an agent reports and what it actually
-made on Hyperliquid, after exchange fees, builder fees and funding.
+The ledger excludes unrealised PnL and depends on available API history.
+There is also a local MCP gateway. I'd like to understand where it fits
+in your workflow.
 
-Paste any address here: https://lawnsonic.github.io/costwall/
-
-On one address I tried, summed closedPnl said −$26.76 for the week; true net
-was −$674.16, almost all of it builder fees. Would you run your agent's
-address through it and tell me if the numbers match what you see? If it's
-useful, there's also an MCP server that prices each trade before your agent
-sends it.
-
----
-
-Track what happens in a simple table: who, date, ran it (y/n), what they
-said. That table is the "demand validation" answer on the submission form.
+Track only actual replies and usage, with dates. Messages sent are not users.
+No outreach was sent as part of this review.

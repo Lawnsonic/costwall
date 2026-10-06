@@ -1,112 +1,103 @@
-# Colosseum submission draft
+# Costwall — submission answers
 
-Field-by-field answers for the Crypto World's Fair form. Anything in
-[brackets] is yours to fill in; nothing about you is guessed here.
+Reviewed October 6, 2026 against the public FAQ. Match these answers to the
+actual portal fields and character limits; the authenticated form was not inspected.
 
----
-
-**Product name**
+## Product
 Costwall
 
-**One-line description**
-A pre-trade cost wall for Hyperliquid trading agents: it prices every order
-against the live book at its real size and refuses the ones that can't pay
-for themselves.
+## One-line description
+A pre-trade cost check and local execution gateway for Hyperliquid agents,
+with an itemised break-even estimate and a public realised ledger.
 
-**Longer description**
-Trading agents can stay inside their spending limits and still lose money on
-every trade, through fees, spreads, funding and builder fees. Costwall tells
-an agent how far the price has to move before a trade breaks even, measured
-against the live Hyperliquid order book at the exact size. Too expensive, and
-the order never leaves.
+## Description
+Costwall answers a practical question before an agent sends an order: how
+much price movement would this trade need to cover its costs?
 
-It runs as a gateway that holds a trade-only agent wallet: the agent can only
-ask to trade, and only an approval signed by the cost oracle and still
-unexpired becomes an order, sent as a limit at the approved price. Closing a
-position is never blocked. It knows when trade.xyz's stock perps are priced by
-their own order book because the real exchange is closed, and refuses those by
-default. A free net ledger shows any address its sum of closedPnl next to its
-true net after builder fees and funding.
+It walks the live Hyperliquid book at the requested size and combines entry
+crossing, an assumed exit book, exchange and builder fees, and a funding
+scenario. The result is an itemised cost estimate and policy verdict.
+The local gateway verifies a signed, expiring approval before submitting
+an IOC entry with a limit price. Reduce-only closes bypass the profitability gate.
 
-**Blockchains and tools**
-Hyperliquid (HyperCore perps, including HIP-3 builder-deployed markets on
-trade.xyz), Hyperliquid info and exchange APIs, hyperliquid-python-sdk,
-EIP-712 signing (eth-account), Model Context Protocol (MCP), GitHub Pages.
+The public website provides read-only pricing, a market board and an address
+ledger separating realised PnL, exchange fees, builder fees and funding.
+Calendar checks flag scheduled internal pricing and unknown HIP-3 schedules.
 
-**Team**
-[Your name], [role]. [Your background, in two or three sentences. Worth
-naming the trading bots you have built and run, since that is the
-founder-market fit judges look for.]
+One owner-run mainnet test completed an approximately $10.18 BTC round trip.
+The original eight-hour estimate was 9.90 bps. Its crossing-and-fee subtotal
+was about 9.12 bps; the reported exchange reconciliation was 9.1175 bps for
+the two-second trade. This demonstrates a working path, not general accuracy.
 
-**Location**
-[City, country]
+## Ecosystem and technology
+Hyperliquid / HyperCore perpetuals, HIP-3 markets, public info API,
+Hyperliquid Python SDK, Python, MCP, EIP-712, JavaScript and GitHub Pages.
+No HyperEVM contract is claimed.
 
-**Logo**
-`docs/logo.svg` (also exported as `docs/logo.png`).
+## Links and assets
+- Product: https://lawnsonic.github.io/costwall/
+- Repository: https://github.com/Lawnsonic/costwall
+- Evidence: https://github.com/Lawnsonic/costwall/blob/main/evidence/hl/first-round-trip-2026-10-03.md
+- Prior work: https://github.com/Lawnsonic/costwall/blob/main/PRIOR_WORK.md
+- Pitch: [ADD VIDEO URL]
+- Demo: [ADD VIDEO URL]
+- Logo: docs/logo.png; vector original: docs/logo.svg
 
-**Repository**
-https://github.com/Lawnsonic/costwall (public; [choose a license before submitting, e.g. MIT];
-tests run in CI on every push)
+## Founder/team/location
+[YOUR NAME, ROLE, CITY, COUNTRY, ALL TEAM MEMBERS]
+Background starter, only if accurate:
+“I build trading bots. An earlier Binance cost-model experiment showed me
+how execution assumptions diverge from fills. That led me to build Costwall
+around explicit costs, bounded entry prices and an audit trail.”
+Add your real projects and actual experience. Describe AI assistance honestly
+if asked. Do not invent users, revenue, team members or qualifications.
 
-**Live product**
-https://lawnsonic.github.io/costwall/
+## Insight
+Permission and position controls limit what an agent may trade. Costwall
+adds an explicit economic hurdle before entry and shows its workings.
+It complements those controls. We do not claim no competitor has similar
+features or that a passed cost check predicts a profitable trade.
 
-**Presentation video** (2 minutes; script in `docs/VIDEO.md`)
-[link]
+## Customer and distribution
+Start with developers operating Hyperliquid agents. The free browser ledger
+and cost receipt introduce the problem; local MCP/gateway integration is the
+adoption path. Planned distribution includes framework integrations and
+direct conversations with agent developers. Those remain plans unless
+separately evidenced. We have not established a defensible market-size estimate.
 
-**Demo video** (3 minutes or less; script in `docs/VIDEO.md`)
-[link]
+## Business model
+Proposed revenue is a transparent builder fee on routed orders, included in
+every cost estimate. The receipt and ledger stay free for discovery.
+We have not validated willingness to pay or earned revenue from the demo.
 
----
+## Validation and traction
+The repository contains one owner-run mainnet round trip and dated internal
+market scans. These are engineering evidence, not outside customers.
+No verified paid users or external adoption are claimed in this package.
+[ADD ONLY VERIFIED CUSTOMER FEEDBACK OR USAGE, WITH DATES.]
 
-**Go-to-market strategy**
+## Remaining work
+Broader calibration, refused-trade counterfactuals, hosted read-only MCP,
+outside adoption and production execution/security hardening. The ledger
+excludes unrealised PnL and does not establish total account return.
 
-Who it is for: developers running trading agents on Hyperliquid, first the
-ones building on agent frameworks with skill or plugin systems (Senpi skills,
-MCP-capable agents), then copy-trading and vault operators who report
-performance to depositors.
+## Prior-work disclosure
+Costwall builds on our Binance Agent OS Hackathon work from September 4–7,
+2026. Tag prior-work-2026-09-07 identifies the earlier cost oracle, MCP wrapper,
+two-leg executor, scanner and evidence. Hyperliquid development was added
+during this event: venue adapter, directional model, HIP-3 fees and sessions,
+signed gateway, ledger, recorder/scanner and website. US equity calendar
+logic was adapted from our Stock-Hours Guard project, dated September 22.
+PRIOR_WORK.md documents the history. Stock-Hours Guard is related disclosed
+work; Costwall is the single product we are submitting.
 
-How they find it: the net ledger. Anyone can paste an address and see the
-gap between the profit their agent reports and what it made. That gap is the
-reason to install the gateway, and it is shareable. Distribution through MCP
-server listings, a Senpi skill wrapping `evaluate_trade`, and posts that show
-the ledger on public addresses (with consent, or anonymised).
+## Before submitting
+Fill all personal fields and video URLs, remove placeholders, and verify
+the final text against your actual situation. The public FAQ permits a
+2–3 minute presentation and a demo no longer than three minutes.
+Every teammate must join the event; one entry per individual/team.
+Public repositories are allowed; no MIT license has been selected for this repo.
+The public event dates end October 12. Confirm the exact cutoff and timezone
+in the portal, and save the submission receipt.
 
-How it makes money: a builder code on orders the gateway sends. Builder codes
-are Hyperliquid's native fee route for order routers, capped at 0.1% on perps.
-Costwall's own pitch obliges it to charge far below the cap and show its fee
-in every verdict. The cost check and the ledger stay free.
-
-**Demand validation**
-- A live review of a Senpi trading skill (senpi-skills PR #800, merged
-  2026-09-30) found a +$410.14 headline that was +$256.61 by its own net
-  calculation, because closedPnl is gross and the builder fee was never read.
-  The failure Costwall prevents is already being found by hand, and getting
-  it right is subtle: that fix adds builderFee on top of fee, but Hyperliquid
-  documents fee as already inclusive of builderFee, so the builder leg is now
-  counted twice.
-- On 2026-10-03, across 81,645 fills from 68 active addresses, the 18 using
-  builder codes paid 83% of their fees to builders ($9,378 of $11,289 in three
-  days). One address showed −$26.76 summed closedPnl and −$674.16 true net
-  over seven days.
-- [Add any conversations with agent builders here, with what they said. Only
-  real ones.]
-
-**Traction**
-[Fill in honestly at submission: number of builders who ran the ledger or
-installed the MCP server, verdicts served, gateway trades. As of 2026-10-03:
-one live mainnet round trip through the gateway, reconciled to the exchange's
-fill records (9.12 bps predicted, 9.12 realised); a refusal log running every
-five minutes since 2026-10-03.]
-
-**Prior work disclosure**
-Costwall grew from a cost oracle built for the Binance Agent OS Hackathon on
-2026-09-04 to 2026-09-07, before this hackathon opened. Everything up to git
-tag `prior-work-2026-09-07` is that prior work: a Binance spot/perp cost
-model, an MCP server around it, and a two-leg executor. All Hyperliquid work
-(venue rules, HIP-3 fees, the directional model, the session calendar and
-discovery band, the gateway and signed approvals, the ledger, the web page,
-the recorder and scanner) was built during the hackathon; `git diff
-prior-work-2026-09-07..HEAD` shows it exactly. The US equity session logic
-was ported from the author's Stock-Hours Guard, written 2026-09-22. Full
-detail: PRIOR_WORK.md.
+Source checked October 6: https://colosseum.com/hackathon

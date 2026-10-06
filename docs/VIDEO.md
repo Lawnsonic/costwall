@@ -1,82 +1,115 @@
-# Video scripts
+# Costwall — record these two videos
 
-Two videos. Keep the pitch to 2:00 (Colosseum posted a 2-minute limit on
-Sept 25; the form says 2 to 3, so 2:00 satisfies both). The demo must be
-3:00 or less. Times are targets, roughly 140 spoken words a minute.
+Target: a 2:00 founder pitch and a 2:40 product demo. The official FAQ checked
+October 6 allows a 2–3 minute presentation and a demo no longer than 3 minutes.
+Follow any more restrictive instruction in your actual submission portal.
 
-Record the screen at 1920x1080 with the browser zoomed to 125%. Every number
-on screen should be live, not pasted.
+## Before recording
+Use 1920×1080, readable browser zoom, a microphone and Do Not Disturb.
+Close wallet popups and secret files. Open the public site, README, dated
+round-trip evidence and the October 3 scan log. Rehearse with a stopwatch.
+No new trade is needed: show the existing trade as historical evidence.
 
----
+## Pitch — narration
 
-## Pitch (2:00)
+Hello, I'm [YOUR NAME], the builder of Costwall.
 
-**0:00 to 0:20. The problem.** Face to camera, or voice over the ledger.
+A trading agent can obey its spending limit and still make a trade whose
+costs overwhelm the move it expects. Exchange fees are only part of the bill.
+There is also the spread, market depth, funding and the interface's builder fee.
 
-> Trading agents on Hyperliquid report their profit by adding up closed PnL.
-> That number is before fees. I pasted one real address into our ledger: it
-> reported a loss of twenty-six dollars over a week. Its real loss was six
-> hundred and seventy-four. Ninety-five percent of the gap was builder fees
-> its own front-end charged, which nothing in its loop ever read.
+Costwall makes that bill explicit before an order leaves.
 
-**0:20 to 0:45. Why existing tools miss it.**
+It reads Hyperliquid's live order book at the requested size and produces an
+itemised break-even estimate. The agent can compare that estimate with its
+expected move. An approval means the cost policy passed; it does not mean
+the trade will make money.
 
-> Spending caps and liquidation guards limit how much an agent can lose. None
-> of them ask whether a particular trade is worth making. On Hyperliquid the
-> same kind of trade can need a two basis point move on one stock perp and an
-> eighteen point move on the next, and on weekends those stock perps are
-> priced by their own order book while the real exchange is closed.
+The local gateway holds the trading key. It checks a signed, expiring verdict
+and submits an immediate-or-cancel order at a bounded price. Reduce-only
+closes bypass the profitability check.
 
-**0:45 to 1:20. What Costwall is.** Show the receipt on the web page.
+You can try the product immediately: price a trade in the browser, or paste
+an address into the ledger to separate realised PnL, fees and funding.
 
-> Costwall prices every trade against the live book at its real size and
-> answers one question: how far does price have to move before this trade
-> pays for itself? Agents connect over MCP. The gateway holds a trade-only
-> key, so the agent can only ask. An approval is signed and expires in ten
-> seconds; only that becomes an order, as a limit at the approved price.
-> Closing is never blocked.
+We also completed a small mainnet round trip. The original estimate assumed
+an eight-hour hold. For the two-second trade, the crossing and fee components
+estimated about 9.12 basis points, matching the recorded cost after rounding.
+That proves one working path, not universal accuracy.
 
-**1:20 to 1:40. Proof.**
+Our initial target customer is a developer running a Hyperliquid trading
+agent. The proposed business model is a transparent routing fee included in
+the same cost check.
 
-> It is live. On October third our first mainnet trade went through the
-> gateway: the oracle predicted 9.12 basis points, the exchange's own records
-> say 9.12. A refusal log has priced the busiest markets every five minutes
-> since.
+I built this from an earlier Binance cost-model experiment; that prior work
+is disclosed. Next comes broader calibration and feedback from outside builders.
 
-**1:40 to 2:00. Who and how.**
+Costwall: know the cost before your agent trades.
 
-> [One sentence on who you are and why you built it: the bots you run.]
-> The ledger is free and shows builders the gap; the gateway earns a builder
-> fee far below the cap, shown in every verdict. Costwall: know what a trade
-> costs before your agent makes it.
+## Pitch visuals
+| Time | Show |
+|---|---|
+| 0:00–0:20 | Your face/name and Costwall title |
+| 0:20–0:55 | Cost receipt; point to the components |
+| 0:55–1:20 | README gateway diagram and ledger |
+| 1:20–1:40 | Dated first-round-trip evidence |
+| 1:40–2:00 | Your face, target customer and product URL |
 
----
+Speak naturally and adjust pauses to finish near two minutes. These timings
+are editing targets, not a measured recording duration.
 
-## Demo (3:00 or less)
+## Demo — exact screen sequence
+| Time | Action | Narration |
+|---|---|---|
+| 0:00–0:12 | Open https://lawnsonic.github.io/costwall/ | “This browser demo reads public data and cannot place orders.” |
+| 0:12–0:42 | BTC, $25, Long, 8h hold, builder fee 0; Price | “It walks the book at this size. Here are entry crossing, estimated exit crossing, fees and a funding scenario. This is the cost hurdle, not a price prediction.” |
+| 0:42–1:00 | Change builder fee to 5 bps; Price | “This is an illustrative input, not a charge from this website. Five basis points on each leg adds ten basis points to the model. Live prices can also change.” |
+| 1:00–1:20 | Run the read-only $5 command below | “Below the venue minimum, the request is refused with a reason. Nothing is sent.” |
+| 1:20–1:42 | Paste your main address into the ledger, seven days | “This separates returned realised PnL, fees and funding. It excludes open-position value and is not total account return.” |
+| 1:42–2:12 | Show October 3 evidence and trade rows | “The original eight-hour estimate was 9.90 bps. Crossing and fees were about 9.12; the two-second round trip cost 9.1175. Both legs filled, and the recorded terminal reported position zero.” |
+| 2:12–2:30 | Show a dated October 3 weekend refusal | “This historical check refused scheduled internal pricing. Weekday results differ. Unknown schedules also refuse.” |
+| 2:30–2:40 | Show prior-work link, then product URL | “The website and local gateway work. Prior work is disclosed. Hosted MCP and broader calibration are next.” |
 
-**0:00 to 0:30. Ledger.** Web page, ledger section. Paste an address with
-builder-fee activity (anonymise it on screen or use one you have permission
-to show). Show the three numbers and the step-down chart. Open "By market".
+## Read-only PowerShell commands
 
-**0:30 to 1:10. Price a trade.** Hero section.
-1. BTC, $25, long: approved, about 10 bps, read the receipt lines aloud.
-2. Same with builder fee 5: break-even roughly doubles.
-3. xyz:GOLD versus xyz:TSLA (on a weekday): the 10x fee gap from growth mode.
-4. On a weekend, xyz:TSLA: refused, real exchange closed. Tick the box: it
-   prices, and the receipt notes the internal price was accepted.
+Use a Python environment with requirements.txt installed.
 
-**1:10 to 1:50. The agent's side.** Terminal or Claude Code with the MCP
-server added.
-1. Show the tool list: `evaluate_trade`, `request_trade`, `close_position`,
-   `get_position`, and no raw order tool.
-2. Ask the agent for a trade below $10 or with too small an expected move:
-   REJECT with the reason, nothing sent.
+    Set-Location D:\Others\costwall
+    python -m hl.oracle BTC 5 BUY --hold-hours 8
 
-**1:50 to 2:30. A real trade.** `python -m scripts.live_check --trade`
-(or replay the recorded run): approval, signature check, IOC fill at the
-signed limit, reduce-only close, position zero. Then show
-`evidence/hl/first-round-trip-2026-10-03.md`: predicted 9.12, realised 9.12.
+Historical fills:
 
-**2:30 to 3:00. Under the hood.** README's "Measured, assumed, and not done"
-section, the green CI badge, the refusal log in `evidence/hl/scan/`. Close on
-the page URL.
+    Get-Content evidence/hl/trades.jsonl |
+      ForEach-Object { $_ | ConvertFrom-Json } |
+      Select-Object ts,action,coin,filled_qty,avg_px,reduce_only,outcome |
+      Format-Table -AutoSize
+
+Historical weekend refusal:
+
+    Get-Content evidence/hl/scan/2026-10-03.jsonl |
+      ForEach-Object { $_ | ConvertFrom-Json } |
+      Where-Object reason -eq 'internal_price_session' |
+      Select-Object -First 1 ts,coin,side,decision,reason |
+      Format-List
+
+Your public main account for the ledger:
+0x74accd81929adc04311ca2d5f7178eb154769b54
+
+Use the main account, not the agent-wallet address. Choose 30 days if the
+seven-day window no longer includes the October 3 trade.
+
+## Recording fallbacks
+- Read live values from the screen. Do not promise a particular approval,
+  cost or stock refusal; current markets and sessions change.
+- If the API is unavailable, show dated evidence and label it historical.
+- Do not lower thresholds or rerun a money-moving command for a cleaner take.
+- Browser and Python estimates may differ with quote timing, caching,
+  rounding and account fee tiers.
+- The ledger rounds to cents; the evidence file preserves the tiny trade cost.
+- Never show .env, keys, terminal environment dumps or wallet recovery screens.
+
+## Export
+Export two 1080p MP4 files. Watch each end to end, check audio and duration.
+Upload to a video host accepted by the portal; public or unlisted links must
+work signed out. Titles: “Costwall — Founder Pitch” and “Costwall — Product Demo”.
+Paste both URLs into SUBMISSION.md and the submission form.

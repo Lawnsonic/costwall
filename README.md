@@ -14,39 +14,17 @@ Prior work is disclosed in [PRIOR_WORK.md](PRIOR_WORK.md).
 
 ---
 
-## The problem, in three measurements
+## The problem
 
-All three were measured from Hyperliquid's public API on 2026-10-03.
+Trading costs can consume a strategy's expected move. Costwall makes the
+estimated hurdle explicit before entry and records the gateway's decisions.
+A cost-policy approval is not a forecast that price will move favourably.
 
-**1. Agents report profit before the costs that matter.** One address, seven
-days of trading:
+[Recording and submission kit](docs/START_HERE.md) includes a spoken pitch,
+timed demo, submission answers and judge Q&A.
 
-| What the agent could report | Amount |
-|---|---|
-| Sum of `closedPnl` | −$26.76 |
-| …minus exchange fees | −$57.33 |
-| **True net**, after builder fees and funding | **−$674.16** |
-
-Builder fees were 95% of everything it paid. Across 81,645 fills from 68
-addresses seen in recent trades, the 18 addresses using builder codes paid 83%
-of their fees to builders, not to the exchange ($9,378 of $11,289 over three
-days). On HIP-3 stock perps, the median taker builder fee was 10 bps, the
-maximum allowed, against 0.77 bps to the exchange. (A small, unrandomised
-sample: an illustration, not a market statistic.)
-
-**2. The same kind of trade can cost ten times more one market over.** A $25
-round trip on trade.xyz's TSLA perp needs a 2.07 bps move to break even; on
-its GOLD perp, 18.74 bps. Both are HIP-3 markets on the same deployer; TSLA has
-"growth mode" fees switched on and GOLD does not.
-
-**3. Stock perps keep trading when the stock market doesn't.** On weekends
-trade.xyz prices its 82 US-equity markets from its own order book, inside a
-band around Friday's close. A fill then is priced against whoever is trading
-on Saturday, not against the stock.
-
-Spending caps (Coinbase Agentic Wallets, Reins, namixai) and liquidation
-guards (nightling) limit how much an agent can lose. None of them decide
-whether a particular trade is worth making. That decision is Costwall.
+Historical exploratory wallet aggregates are not used as headline proof:
+their exact raw sample and query window were not preserved in this repository.
 
 ---
 
@@ -90,11 +68,11 @@ agent ──request_trade──▶ gateway ──▶ oracle (live book, real siz
 - The oracle signs every approval over the order itself (market, side, size,
   limit price), its expiry, and a hash of the full verdict. The gateway
   rejects anything unsigned, tampered with, signed by another key, or expired.
-- The order is a limit at the deepest price the verdict priced, so it fills
-  inside the priced depth or not at all.
-- `close_position` is never refused (a cost check that can trap you in a
-  position is worse than none), and is sent reduce-only so a "close" can never
-  open or flip a position. Its cost is still measured and logged.
+- The order is a limit at the deepest price the verdict priced, so fills respect that limit. IOC orders may fill partially; the limit does
+  not guarantee the estimated VWAP or the future exit cost.
+- close_position bypasses the profitability gate and is sent reduce-only so a "close" can never
+  open or flip a position. Exchange errors, limited liquidity or the 2% close
+  bound can leave residual size. Its cost is still measured and logged.
 
 ### Stock markets after hours
 
@@ -109,8 +87,10 @@ where the price sits inside trade.xyz's discovery band.
 ### The net ledger
 
 Paste any address. It shows the sum of `closedPnl`, the same minus exchange
-fees, and the true net after builder fees and funding, broken down by market.
-No key needed; it is all public.
+fees, and net of recorded costs after builder fees and funding, broken down by market.
+No key needed; it is all public. The ledger excludes unrealised PnL and
+transfers, does not convert non-USDC fees, and is subject to API history limits.
+It is not total account return.
 
 ---
 
@@ -161,6 +141,11 @@ trade-only agent wallet. Reconciled against the exchange's own fill records:
 | Spread in and out | 0.12 bps | 0.12 bps |
 | Total for the trade made (no funding hour crossed) | **9.12 bps** | **9.12 bps** ($0.0093 on $10.18) |
 
+The original recorded forecast was **9.90 bps for an eight-hour hold**.
+The 9.12 bps comparison covers its crossing-and-fee subtotal; no funding
+hour was crossed during the two-second actual hold. This is a component
+comparison, not a full forecast match.
+
 One small trade on the deepest book on the venue, so it proves the path works
 end to end with real money, not that the model holds on thin books. Full
 record: [evidence/hl/first-round-trip-2026-10-03.md](evidence/hl/first-round-trip-2026-10-03.md).
@@ -169,7 +154,7 @@ record: [evidence/hl/first-round-trip-2026-10-03.md](evidence/hl/first-round-tri
 
 ## Measured, assumed, and not done
 
-Every figure above comes from a live call. Where something is assumed, the
+Recorded figures are historical observations. Estimates contain assumptions. Where something is assumed, the
 verdict says so:
 
 - **Exit spread** assumes the exit book will look like the current one.
@@ -197,7 +182,7 @@ Known limits:
 
 ## Business model
 
-The cost check and the ledger are free. Revenue comes from a builder code on
+The cost check and the ledger are free. Proposed revenue comes from a builder code on
 orders the gateway sends: Hyperliquid's builder codes are the only fee route
 for an order router, capped at 0.1% on perps. Costwall's own pitch obliges it
 to charge far below that cap and to show its own fee in every verdict, like
@@ -218,3 +203,23 @@ cost/, execution/, strategy/, reporting/
              prior work: the Binance build this grew from (see PRIOR_WORK.md)
 prior/       the Binance-era README, context and agent policy
 ```
+
+## Submission scope and deployment limits
+
+The public website and local MCP gateway are implemented. Hosted read-only
+MCP, broader calibration, refused-trade counterfactuals and outside adoption
+remain pending. Internal scanner observations are not customer traction.
+No paid adoption or external customer count is verified in this package.
+
+The boundary assumes the agent cannot access host secrets, a shell or raw
+exchange tools. Local keys share a host. The signature prototype lacks
+production nonce/replay protection and account/network-specific domain
+binding. A trade-only wallet can lose trading capital even without withdrawal
+permission. The gateway has not been security-audited.
+
+Calendar state estimates scheduled external-price availability; it is not
+a live oracle-health or trading-halt feed. Browser and Python estimates may
+differ with quote timing, caching, rounding and account fee tiers.
+
+Source is public; no project-wide open-source license has been selected.
+Current recording and submission instructions: [Start here](docs/START_HERE.md).

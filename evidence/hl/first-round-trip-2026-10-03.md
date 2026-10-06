@@ -26,11 +26,15 @@ Gateway rows: `evidence/hl/verdicts.jsonl`, `evidence/hl/trades.jsonl`
 | Taker fee, open | 4.50 bps | 4.4998 bps ($0.004581) |
 | Taker fee, close | 4.50 bps | 4.4999 bps ($0.004581) |
 | Spread in + out | 0.12 bps | 0.12 bps (84837.0 in, 84836.0 out; closedPnl −$0.00012) |
-| Funding | 0.78 bps for an assumed 8 h hold | none: held 2 seconds, no funding hour crossed |
+| Funding | 0.79 bps in the saved verdict for an assumed 8 h hold | none: held 2 seconds, no funding hour crossed |
 | **Total for the trade actually made** | **9.12 bps** | **9.12 bps** ($0.009282 on $10.18) |
 
 The fee was read from the account's own `userFees` (4.5 bps taker, no
 referral or staking discount), not assumed.
+
+The original total forecast was 9.90 bps. The 9.12 bps comparison excludes
+its funding scenario after the two-second actual holding period is known.
+Rounded components need not sum exactly to the rounded total.
 
 ## What this does and does not show
 

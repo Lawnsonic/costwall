@@ -24,7 +24,7 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="pitch">
       <h1 id="hero-title">Know what a trade costs before your agent makes it.</h1>
-      <p class="lede">Costwall prices a Hyperliquid perp trade against the live order book, at the size you actually trade, and tells you how far the price has to move before the trade has paid for itself. Too expensive, and the order never leaves.</p>
+      <p class="lede">Costwall prices a Hyperliquid perp trade against the live order book, at the size you actually trade, and tells you how far the price has to move before the trade has paid for itself. The local gateway enforces its cost policy. This browser demo sends no orders.</p>
 
       <form id="price-form" class="form" autocomplete="off">
         <label class="field wide">
@@ -66,8 +66,8 @@
   </section>
 
   <section class="ledger" aria-labelledby="ledger-title">
-    <h2 id="ledger-title">What did this address really make?</h2>
-    <p class="section-lede">Most trading agents report profit by adding up <code>closedPnl</code>. That number is before fees, and the builder fee charged by a trading front-end can be larger than the exchange's own. Paste any Hyperliquid address to see all three numbers.</p>
+    <h2 id="ledger-title">Realised PnL after recorded costs</h2>
+    <p class="section-lede">Adding up <code>closedPnl</code>. That number is before fees, and the builder fee charged by a trading front-end can be larger than the exchange's own. Paste any Hyperliquid address to see all three numbers.</p>
     <form id="ledger-form" class="ledger-form" autocomplete="off">
       <label class="field grow">
         <span>Address</span>
@@ -102,18 +102,18 @@
     <div class="how-grid">
       <div>
         <h3>The break-even move</h3>
-        <p>Crossing the spread to get in, crossing it again to get out, the taker fee both ways, any builder fee both ways, and funding over the hold when it runs against you. Every term is measured against the order book read at the moment you ask, for your exact size.</p>
+        <p>Crossing the spread to get in, crossing it again to get out, the taker fee both ways, any builder fee both ways, and funding over the hold when it runs against you. Entry crossing uses the current book at your size. APPROVED means the cost policy passed, not that profit is expected. Exit crossing assumes similar liquidity later, and funding projects the current rate over the hold.</p>
       </div>
       <div>
         <h3>The gateway</h3>
-        <p>An agent connected to Costwall never holds a trading key. It asks the gateway to trade; the gateway prices the trade, and only an approval signed by the oracle and still unexpired becomes an order, sent as a limit at the approved price. Closing a position is never blocked.</p>
+        <p>An agent connected to Costwall never holds a trading key. It asks the gateway to trade; the gateway prices the trade, and only an approval signed by the oracle and still unexpired becomes an order, sent as a limit at the approved price. Reduce-only closes bypass the cost policy, but still depend on liquidity and exchange acceptance.</p>
       </div>
       <div>
         <h3>Stock markets after hours</h3>
-        <p>When the underlying exchange is closed, trade.xyz prices its stock perps from its own order book inside a fixed band. What a fill is worth when the real market reopens cannot be measured, so Costwall refuses unless you say otherwise.</p>
+        <p>When the underlying exchange is closed, trade.xyz prices its stock perps from its own order book inside discovery bounds. What a fill is worth when the real market reopens cannot be measured, so Costwall refuses unless you say otherwise.</p>
       </div>
     </div>
-    <p class="fine">This page runs a browser copy of the Python oracle in the repository, at Hyperliquid's public base fee tier. Exit crossing assumes the exit book looks like today's; favourable funding is shown but never counted in your favour. Nothing on this page can place an order.</p>
+    <p class="fine">This page runs a browser copy of the Python oracle in the repository, at Hyperliquid's public base fee tier. APPROVED means the cost policy passed, not that profit is expected. Exit crossing assumes the exit book looks like today's; favourable funding is shown but never counted in your favour. Nothing on this page can place an order.</p>
   </section>
 </main>
 

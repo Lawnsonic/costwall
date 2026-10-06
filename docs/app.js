@@ -209,13 +209,14 @@ function renderReceipt(v) {
     body += line("Spread in", `${fmt(v.cost.entry)} bps`) + line("Spread out", `${fmt(v.cost.exit)} bps`)
       + line(`Taker fee ×2`, `${fmt(v.cost.fees)} bps`) + line("Builder fee ×2", `${fmt(v.cost.builder)} bps`, v.cost.builder === 0)
       + line(`Funding, ${v.hold}h`, `${fmt(v.cost.funding)} bps`, v.cost.funding === 0)
-      + `<hr class="r-rule"><div class="r-line r-total"><span>Price must move</span><span></span></div>
-         <p class="r-big">${fmt(v.total)} bps</p><p class="r-line dim"><span>in your favour to break even</span></p>
+      + `<hr class="r-rule"><div class="r-line r-total"><span>Estimated break-even move</span><span></span></div>
+         <p class="r-big">${fmt(v.total)} bps</p><p class="r-line dim"><span>under the displayed assumptions</span></p>
          <hr class="r-rule">${line("Size", `${v.qty} ${esc(v.coin.replace(/^.*:/, ""))}`)}${line("Value", `$${fmt(v.priced)}`)}${line("Mid", fmt(v.mid, v.mid < 1 ? 6 : 2))}`
       + `<p class="r-note">Taker ${fmt(v.takerBps, 3)} bps (base tier${v.hip3Scale !== 1 ? `, HIP-3 ×${v.hip3Scale}` : ""}${v.growthScale !== 1 ? `, growth mode ×${v.growthScale}` : ""}). ${v.fundingSigned < 0 ? `Funding runs your way (${fmt(-v.fundingSigned)} bps) but isn't counted.` : ""} ${ok ? "" : `Over by ${fmt(v.shortfall)} bps: ${esc(v.test)}.`}</p>`;
   } else {
     body += `<p class="r-why"><b>${esc(REASONS[v.reason] || v.reason)}</b></p><p class="r-note">${esc(v.detail || "")}</p>`;
   }
+  body += '<p class="r-note">Read-only estimate. Approval means the cost policy passed. Exit liquidity and funding over the hold are assumptions.</p>';
   el.innerHTML = body;
   el.dataset.state = ok ? "ok" : "no";
   el.classList.remove("printing"); void el.offsetWidth; el.classList.add("printing");
@@ -301,16 +302,16 @@ document.getElementById("ledger-form").addEventListener("submit", async (e) => {
       <div class="trio">
         <div><div class="k">Adding up closedPnl</div><div class="n">${money(naive)}</div></div>
         <div><div class="k">Minus exchange fees</div><div class="n">${money(minusExch)}</div></div>
-        <div class="truth"><div class="k">True net</div><div class="n">${money(net)}</div></div>
+        <div class="truth"><div class="k">Net of recorded costs</div><div class="n">${money(net)}</div></div>
       </div>
       ${waterfall([
         { label: "closedPnl", value: naive },
         { label: "Exchange fees", value: -(t.exch || 0) },
         { label: "Builder fees", value: -(t.builder || 0) },
         { label: "Funding", value: t.funding || 0 },
-        { label: "True net", value: net, total: true },
+        { label: "Net of recorded costs", value: net, total: true },
       ])}
-      <p class="muted">${fills.length.toLocaleString()} fills, ${money(t.volume || 0).replace("$", "$")} traded over ${days} day${days === 1 ? "" : "s"}.${allFees > 0 ? ` Builder fees were ${Math.round(((t.builder || 0) / allFees) * 100)}% of all fees paid.` : ""}${fills.length >= 10000 ? " Hyperliquid limits history to 10,000 fills, so totals may be incomplete." : ""}${otherFees ? ` ${otherFees} fills paid fees in another token and aren't counted.` : ""}</p>
+      <p class="muted">Partial realised ledger: excludes unrealised PnL and transfers; API history may be incomplete. ${fills.length.toLocaleString()} fills, ${money(t.volume || 0).replace("$", "$")} traded over ${days} day${days === 1 ? "" : "s"}.${allFees > 0 ? ` Builder fees were ${Math.round(((t.builder || 0) / allFees) * 100)}% of all fees paid.` : ""}${fills.length >= 10000 ? " Hyperliquid limits history to 10,000 fills, so totals may be incomplete." : ""}${otherFees ? ` ${otherFees} fills paid non-USDC fees; those fees are excluded from this total.` : ""}</p>
       <details class="coins"><summary>By market</summary><div class="table-scroll"><table>
         <thead><tr><th>Market</th><th class="num">Fills</th><th class="num">closedPnl</th><th class="num">Exchange fees</th><th class="num">Builder fees</th><th class="num">Funding</th></tr></thead>
         <tbody>${rows.map(([c, r]) => `<tr><td>${esc(c)}</td><td class="num">${r.fills}</td><td class="num">${money(r.closed)}</td><td class="num">${money(-r.exch)}</td><td class="num">${money(-r.builder)}</td><td class="num">${money(r.funding)}</td></tr>`).join("")}</tbody>
